@@ -1,4 +1,4 @@
-## Interface: 20300
+## Interface: 11304
 ## Title: BananaBarClassic  |cff7fff7f-Ace3-|r
 ## Author: Bordeaux
 ## Version: "$Rev: 2.0-alpha-1 $" 
