@@ -1,0 +1,494 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.blizzard.com/wow/ui/FrameXML/UI.xsd">
+	<Font name="GameFontBananaButton" outline="THICK" font="Fonts\ARIALN.TTF" virtual="true">
+		<FontHeight>
+			<AbsValue val="20"/>
+		</FontHeight>
+		<Color r="1.0" g="1.0" b="0"/>
+	</Font>
+
+	<Button clampedToScreen="true" name="BananaBar2ButtonTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="36" y="36"/>
+		</Size>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture name="$parentSelected" alphaMode="ADD" file="Interface\Buttons\CheckButtonHilight" hidden="true">
+					<Size>
+						<AbsDimension x="36" y="36"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+                            </Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentArrow1" file="Interface\AddOns\BananaBarClassic\Images\ArrowMetal1" hidden="true">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-6"/>
+                            </Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentArrow2" file="Interface\AddOns\BananaBarClassic\Images\ArrowMetal2" hidden="true">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="RIGHT">
+							<Offset>
+								<AbsDimension x="-6" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentArrow3" file="Interface\AddOns\BananaBarClassic\Images\ArrowMetal3" hidden="true">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="BOTTOM">
+							<Offset>
+								<AbsDimension x="0" y="6"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentArrow4" file="Interface\AddOns\BananaBarClassic\Images\ArrowMetal4" hidden="true">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="LEFT">
+							<Offset>
+								<AbsDimension x="6" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+            </Layer>
+			<Layer level="ARTWORK">
+				<FontString name="$parentMobName" inherits="GameFontNormalSmall" justifyH="LEFT">
+					<Size>
+						<AbsDimension x="300" y="24"/>
+					</Size>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="RIGHT">
+							<Offset>
+								<AbsDimension x="0" y="-8"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<Texture name="$parentTargetSymbol" file="Interface\TargetingFrame\UI-RaidTargetingIcons" hidden="true">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentDeadSymbol" file="Interface\AddOns\BananaBarClassic\Images\Dead" hidden="true">
+					<Size>
+						<AbsDimension x="32" y="32"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+            </Layer>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentIcon"/>
+			</Layer>
+			<Layer level="ARTWORK">
+                <!-- rotes overlay für den button -->
+				<Texture name="$parentFlash" file="Interface\Buttons\UI-QuickslotRed" hidden="true"/>
+				<!-- schrift, oben rechtsbündig -->
+                <FontString name="$parentHotKey" inherits="NumberFontNormalSmallGray" justifyH="RIGHT">
+					<Size>
+						<AbsDimension x="36" y="10"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="-2" y="-2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<!-- schrift, unten rechtsbündig -->
+                <FontString name="$parentCount" inherits="NumberFontNormal" justifyH="RIGHT">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT">
+							<Offset>
+								<AbsDimension x="-2" y="2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY">
+                <!-- schrift, unten mitte -->
+				<FontString name="$parentName" inherits="GameFontHighlightSmallOutline">
+					<Size>
+						<AbsDimension x="36" y="10"/>
+					</Size>
+					<Anchors>
+						<Anchor point="BOTTOM">
+							<Offset>
+								<AbsDimension x="0" y="2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<!-- der weisse rand des buttons der zur mitte hin durchsichtig wird  -->
+                <Texture name="$parentBorder" file="Interface\Buttons\UI-ActionButton-Border" hidden="true" alphaMode="ADD">
+					<Size>
+						<AbsDimension x="62" y="62"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Model name="$parentCooldown" inherits="CooldownFrameTemplate">
+				<Size x="36" y="36"/>
+				<Anchors>
+					<Anchor point="CENTER" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="0" y="-1"/>
+						</Offset>
+					</Anchor>
+				</Anchors> 
+			</Model>
+            <StatusBar name="$parentHealthBar" minValue="0" maxValue="100" defaultValue="90" hidden="false" orientation="HORIZONTAL" drawLayer="ARTWORK">
+				<Size x="100" y="10"/>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="1" y="2"/>
+						</Offset>
+					</Anchor>
+				</Anchors> 
+            </StatusBar>
+		</Frames>
+        
+		<!-- schwarz grauer rahmen -->
+        <NormalTexture name="$parentNormalTexture" file="Interface\Buttons\UI-Quickslot2">
+			<Size>
+				<AbsDimension x="66" y="66"/>
+			</Size>
+			<Anchors>
+				<Anchor point="CENTER">
+					<Offset>
+						<AbsDimension x="0" y="-1"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</NormalTexture>
+        <!-- schwarz goldener rahmen -->
+        <!-- Interface\Buttons\UI-Quickslot-Depress -->
+		<PushedTexture file="Interface\AddOns\BananaBarClassic\Images\Pressed"/>
+        <!-- mouseover -->
+        <HighlightTexture alphaMode="ADD" file="Interface\Buttons\ButtonHilight-Square"/>
+	</Button>
+
+
+	<Button clampedToScreen="true" name="BananaBar2AssistButtonTemplate" virtual="true" inherits="SecureUnitButtonTemplate">
+		<Size>
+			<AbsDimension x="36" y="36"/>
+		</Size>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture name="$parentSelected" alphaMode="ADD" file="Interface\Buttons\CheckButtonHilight" hidden="true">
+					<Size>
+						<AbsDimension x="36" y="36"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+                            </Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentArrow1" file="Interface\AddOns\BananaBarClassic\Images\ArrowMetal1" hidden="true">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-6"/>
+                            </Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentArrow2" file="Interface\AddOns\BananaBarClassic\Images\ArrowMetal2" hidden="true">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="RIGHT">
+							<Offset>
+								<AbsDimension x="-6" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentArrow3" file="Interface\AddOns\BananaBarClassic\Images\ArrowMetal3" hidden="true">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="BOTTOM">
+							<Offset>
+								<AbsDimension x="0" y="6"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentArrow4" file="Interface\AddOns\BananaBarClassic\Images\ArrowMetal4" hidden="true">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="LEFT">
+							<Offset>
+								<AbsDimension x="6" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+            </Layer>
+			<Layer level="ARTWORK">
+				<FontString name="$parentMobName" inherits="GameFontNormalSmall" justifyH="LEFT">
+					<Size>
+						<AbsDimension x="300" y="24"/>
+					</Size>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="RIGHT">
+							<Offset>
+								<AbsDimension x="0" y="-8"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<Texture name="$parentTargetSymbol" file="Interface\TargetingFrame\UI-RaidTargetingIcons" hidden="true">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentDeadSymbol" file="Interface\AddOns\BananaBarClassic\Images\Dead" hidden="true">
+					<Size>
+						<AbsDimension x="32" y="32"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+            </Layer>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentIcon"/>
+			</Layer>
+			<Layer level="ARTWORK">
+                <!-- rotes overlay für den button -->
+				<Texture name="$parentFlash" file="Interface\Buttons\UI-QuickslotRed" hidden="true"/>
+				<!-- schrift, oben rechtsbündig -->
+                <FontString name="$parentHotKey" inherits="NumberFontNormalSmallGray" justifyH="RIGHT">
+					<Size>
+						<AbsDimension x="36" y="10"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="-2" y="-2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<!-- schrift, unten rechtsbündig -->
+                <FontString name="$parentCount" inherits="NumberFontNormal" justifyH="RIGHT">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT">
+							<Offset>
+								<AbsDimension x="-2" y="2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY">
+                <!-- schrift, unten mitte -->
+				<FontString name="$parentName" inherits="GameFontBananaButton" font="Fonts\ARIALN.TTF" outline="NORMAL">
+					<FontHeight>
+						<AbsValue val="25"/>
+					</FontHeight>
+					<Size>
+						<AbsDimension x="36" y="10"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="-2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentName2" inherits="GameFontBananaButton" font="Fonts\ARIALN.TTF" outline="NORMAL">
+					<FontHeight>
+						<AbsValue val="35"/>
+					</FontHeight>
+					<Color r="0.5" g="1.0" b="1.0"/>
+					<Size>
+						<AbsDimension x="36" y="10"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="-2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<!-- der weisse rand des buttons der zur mitte hin durchsichtig wird  -->
+                <Texture name="$parentBorder" file="Interface\Buttons\UI-ActionButton-Border" hidden="true" alphaMode="ADD">
+					<Size>
+						<AbsDimension x="62" y="62"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Model name="$parentCooldown" inherits="CooldownFrameTemplate">
+				<Size x="36" y="36"/>
+				<Anchors>
+					<Anchor point="CENTER" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="0" y="-1"/>
+						</Offset>
+					</Anchor>
+				</Anchors> 
+			</Model>
+            <StatusBar name="$parentHealthBar" minValue="0" maxValue="100" defaultValue="90" hidden="false" orientation="HORIZONTAL" drawLayer="ARTWORK">
+				<Size x="100" y="10"/>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="1" y="2"/>
+						</Offset>
+					</Anchor>
+				</Anchors> 
+            </StatusBar>
+		</Frames>
+        
+		<!-- schwarz grauer rahmen -->
+        <NormalTexture name="$parentNormalTexture" file="Interface\Buttons\UI-Quickslot2">
+			<Size>
+				<AbsDimension x="66" y="66"/>
+			</Size>
+			<Anchors>
+				<Anchor point="CENTER">
+					<Offset>
+						<AbsDimension x="0" y="-1"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</NormalTexture>
+        <!-- schwarz goldener rahmen -->
+        <!-- Interface\Buttons\UI-Quickslot-Depress -->
+		<PushedTexture file="Interface\AddOns\BananaBarClassic\Images\Pressed"/>
+        <!-- mouseover -->
+        <HighlightTexture alphaMode="ADD" file="Interface\Buttons\ButtonHilight-Square"/>
+	</Button>
+
+
+
+    <Frame name="BananaBarEscapeHookFrame" parent="UIParent" hidden="true">
+		<Size>
+			<AbsDimension x="0" y="0"/>
+		</Size>
+		<Anchors>
+			<Anchor point="LEFT" relativePoint="RIGHT">
+				<Offset>
+					<AbsDimension x="0" y="0"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+        <Scripts>
+            <OnLoad>
+                tinsert(UISpecialFrames,"BananaBarEscapeHookFrame");
+            </OnLoad>
+            <OnShow>
+            </OnShow>
+            <OnHide>
+                BananaBar2:EscapePressed();
+            </OnHide>
+        </Scripts>
+    </Frame>
+    
+    
+    <Frame clampedToScreen="false" name="BananaMtSymbolTemplate" virtual="true" movable="false">
+        <Size>
+            <AbsDimension x="16" y="16"/>
+        </Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentSymbol" file="Interface\TargetingFrame\UI-RaidTargetingIcons" hidden="false">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+            </Layer>
+		</Layers>
+    </Frame>
+
+    
+</Ui>
