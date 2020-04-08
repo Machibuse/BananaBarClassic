@@ -42,6 +42,16 @@ options = {
 
     type = "group", 
     args = {
+        updaterate = {
+            type = "range",
+            width = "full",
+            name = L["updaterate"],
+            desc = L["updateratedesc"],
+            get = function() return BananaBar2:Get_updaterate() end,
+            set = function(info,v) BananaBar2:Set_updaterate(v) end,
+            min = 0.1, max = 2, step = 0.1,
+            order = 1,
+        },
         mobsettings = {
             type = "group", 
             name = L["mobsettings"],
@@ -49,15 +59,6 @@ options = {
             args = {
             },
             order = 2,
-        },
-        updaterate = {
-            type = "range",
-            name = L["updaterate"],
-            desc = L["updateratedesc"],
-            get = function() return BananaBar2:Get_updaterate() end,
-            set = function(info,v) BananaBar2:Set_updaterate(v) end,
-            min = 0.1, max = 2, step = 0.1,
-            order = 1,
         },
         mousebutton = 
         {
@@ -135,21 +136,6 @@ options = {
                             order = 14,
                         },
                     }
-                },
-                action_target = {
-                    type = "group", 
-                    name = L["action_target"],
-                    desc = L["action_targetdesc"],
-                    args = {
-                        dummy = {
-                            type = "toggle",
-                            name = "This function is removed because it will not work anymore in WOW Classic",
-                            desc = "Sorry",
-                            get = function() return false; end,
-                            set = function(info,v) end,
-                            order = 1,
-                        },
-                   }
                 },
                 action_setsymbol = {
                     type = "group", 
@@ -401,32 +387,32 @@ options = {
                         },
                         huntersmarkbutton1 = {
                             type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLORHM..L["huntersmark"].." 1|r",
-                            desc = L["showhuntersmarkdesc"],
+                            name = "|c"..BANANA_SYMBOL_COLORHM..L["unmarked"].." 1|r",
+                            desc = L["showunmarkeddesc"],
                             get = function() return BananaBar2:Get_showbutton(9) end,
                             set = function(info,v) BananaBar2:Set_showbutton(9,v) end,
                             order = 9,
                         },
                         huntersmarkbutton2 = {
                             type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLORHM..L["huntersmark"].." 2|r",
-                            desc = L["showhuntersmarkdesc"],
+                            name = "|c"..BANANA_SYMBOL_COLORHM..L["unmarked"].." 2|r",
+                            desc = L["showunmarkeddesc"],
                             get = function() return BananaBar2:Get_showbutton(10) end,
                             set = function(info,v) BananaBar2:Set_showbutton(10,v) end,
                             order = 10,
                         },
                         huntersmarkbutton3 = {
                             type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLORHM..L["huntersmark"].." 3|r",
-                            desc = L["showhuntersmarkdesc"],
+                            name = "|c"..BANANA_SYMBOL_COLORHM..L["unmarked"].." 3|r",
+                            desc = L["showunmarkeddesc"],
                             get = function() return BananaBar2:Get_showbutton(11) end,
                             set = function(info,v) BananaBar2:Set_showbutton(11,v) end,
                             order = 11,
                         },
                         huntersmarkbutton4 = {
                             type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLORHM..L["huntersmark"].." 4|r",
-                            desc = L["showhuntersmarkdesc"],
+                            name = "|c"..BANANA_SYMBOL_COLORHM..L["unmarked"].." 4|r",
+                            desc = L["showunmarkeddesc"],
                             get = function() return BananaBar2:Get_showbutton(12) end,
                             set = function(info,v) BananaBar2:Set_showbutton(12,v) end,
                             order = 12,
@@ -830,7 +816,6 @@ LibStub("AceConfig-3.0"):RegisterOptionsTable("BananaBar2", options, { "bb2", "b
 --- OnInitialize
 ------------------------------------------
 function BananaBar2:OnInitialize()
-
     self.db = LibStub("AceDB-3.0"):New("BananaBarClassicData", defaults, true)
 
     self.BananaUpdateTimer = self:ScheduleRepeatingTimer("BananaUpdate", self.db.profile.updaterate, self);
@@ -848,12 +833,16 @@ function BananaBar2:OnInitialize()
     for i = 1,BANANA_MAX_BUTTONS,1 do
         self:Debug("create new button ".."Nr"..i);
         self.Buttons[i] = BananaBar2Button:new(self,"Nr"..i);
-        self.Buttons[i]:SetButtonSymbol(i);
+        if i > BANANA_RAIDSYMBOL_BUTTON_COUNT then
+            self.Buttons[i]:SetButtonSymbolExtra(nil);
+        else
+            self.Buttons[i]:SetButtonSymbol(i);
+        end
+
 
         if i > 1 then
             self.Buttons[i]:Dock(BANANA_DOCK_LEFT,self.Buttons[i-1]);
         end
-
     end
     self.AssistButtons = {};
     for i = 1,40,1 do
@@ -878,7 +867,9 @@ function BananaBar2:OnInitialize()
     
     self:RegisterEvent("UPDATE_MOUSEOVER_UNIT");
     self:RegisterEvent("CHAT_MSG_ADDON");
-    
+    self:RegisterEvent("PLAYER_REGEN_DISABLED");
+    self:RegisterEvent("PLAYER_REGEN_ENABLED");
+
     --LibStub("AceConsole-3.0"):InjectAceOptionsTable(self, options) todo
 
 
@@ -922,6 +913,25 @@ end
 
 function BananaBar2:BananaSetCursor(texture)
     self.mouseOverlayFrameTex:SetTexture(texture)
+end
+
+
+
+
+function BananaBar2:PLAYER_REGEN_DISABLED(event)
+    self:Print("Enter Combat")
+    for i,j in pairs(BananaBar2Scanner.TARGETMARKS) do
+        if (j == nil) then
+            self:Print(i.." -> NIL")
+        else
+            self:Print(i.." -> "..j)
+        end
+    end
+
+end
+
+function BananaBar2:PLAYER_REGEN_ENABLED(event)
+    self:Print("Leave Combat")
 end
 
 
@@ -1310,20 +1320,11 @@ function BananaBar2:ProfileUpdated(layout)
     end
     BananaBar2:UpdateActions();
     --self:Debug("mobsettings?");
-    if not self.db.profile.mobsettings[GetLocale()] then
-        self:Debug("mobsettings reset");
-        self.db.profile.mobsettings[GetLocale()] = {};
-        self.db.profile.mobsettings[GetLocale()].nextid=0;
-        self.db.profile.mobsettings[GetLocale()].byname={};
-        self.db.profile.mobsettings[GetLocale()].byid={};
-        self:Debug("mobsettings for locale "..GetLocale().." created");
-    else
-        self:Debug("mobsettings exists for "..GetLocale());
-    end
     
-    for name,setting in pairs(self.db.profile.mobsettings[GetLocale()].byname) do
-        self:Debug("addmob "..name);
-        AddOptionEntry(setting.zone,name,setting.id);
+    for zone,mobs in pairs(self.db.profile.mobsettings) do
+        for name,mobsetting in pairs(mobs) do
+            AddOptionEntry(zone,name);
+        end
     end
     -- self.metro:ChangeMetroRate("BananaUpdate",self.db.profile.updaterate); todo
 
@@ -1415,25 +1416,23 @@ function BananaBar2:UpdateTooltip()
         tooltip_sort_array[0][0] = 0;
         
         local id = self.TooltipButton.ButtonId;
-        if id > BananaBar2Scanner.RT_MAX then
-            id = id - BananaBar2Scanner.RT_MAX - 1 + BananaBar2Scanner.HT_FIRST;
-        end
-
 
         GameTooltip:SetOwner(self.TooltipButton.frame, "ANCHOR_TOPRIGHT");
         GameTooltip:ClearLines();
-        if BananaBar2Scanner.TSRA[id].used == 1 or (id >= BananaBar2Scanner.HT_FIRST and id < BananaBar2Scanner.HT_FIRST+BananaBar2Scanner.TSRA.ht_count) then
-		 	GameTooltip:AddLine(UnitName(BananaBar2Scanner.TSRA[id].info_unit),0.7,0.7,0.7)
+
+        if BananaBar2Scanner.TARGETMARKS[id] then
+            local t = BananaBar2Scanner.TARGETS[BananaBar2Scanner.TARGETMARKS[id]];
+		 	GameTooltip:AddLine(UnitName(t.info_unit),0.7,0.7,0.7)
             local i;
-            for i=0,BananaBar2Scanner.TSRA[id].fromcount-1,1 do
-                localizedClass, englishClass = UnitClass(BananaBar2Scanner.TSRA[id].from[i]);
+            for i in pairs(t.from) do
+                localizedClass, englishClass = UnitClass(i);
 				--
-				if UnitIsPlayer(BananaBar2Scanner.TSRA[id].from[i])  then
+				if UnitIsPlayer(i)  then
 					tooltip_sort_array[englishClass][0] = tooltip_sort_array[englishClass][0]+1;
-					tooltip_sort_array[englishClass][tooltip_sort_array[englishClass][0]] = BananaBar2Scanner.TSRA[id].from[i];
+					tooltip_sort_array[englishClass][tooltip_sort_array[englishClass][0]] = i;
 				else
 					tooltip_sort_array[0][0] = tooltip_sort_array[0][0]+1;
-					tooltip_sort_array[0][tooltip_sort_array[0][0]] = BananaBar2Scanner.TSRA[id].from[i];
+					tooltip_sort_array[0][tooltip_sort_array[0][0]] = i;
 				end
 				
             end
@@ -1454,6 +1453,7 @@ function BananaBar2:UpdateTooltip()
     else
     end
 end    
+
 
 function BananaBar2:AddToolTipLines(class,col)
 	local i;
@@ -1495,60 +1495,73 @@ function BananaBar2:BananaUpdate()
 		BananaBar2AssistButton:UpdateAllVisible();
 	end
 
-
     BananaBar2:UpdateTooltip();
+    
     --debugprofilestart()
     BananaBar2Scanner:Scan();
-    for but=1,8,1 do
-        if BananaBar2Scanner.TSRA[but].used == 1 then
-            self.Buttons[but]:SetCount(BananaBar2Scanner.TSRA[but].fromcount);
-            self.Buttons[but]:SetDead(BananaBar2Scanner.TSRA[but].info_dead);
-            self.Buttons[but].HealthBar:SetMinMaxValues(0,BananaBar2Scanner.TSRA[but].info_healthmax);
-            self.Buttons[but].HealthBar:SetValue(BananaBar2Scanner.TSRA[but].info_health);
-            self.Buttons[but]:SetMobName(BananaBar2Scanner.TSRA[but].info_name);
-            if UnitIsUnit("playertarget",BananaBar2Scanner.TSRA[but].info_unit) then
-	            self.Buttons[but]:SetSelected(true)
+
+    targets = {}
+    for guid,info in pairs(BananaBar2Scanner.TARGETS) do 
+        if tablelength(info.from) > 0 and info.symbol == nil and UnitCanAttack("PLAYER",info.info_unit) then
+            table.insert(targets, guid) 
+        end
+    end
+
+    
+    table.sort(targets, 
+      function(c1,c2) 
+        self:Print(c1)
+        if tablelength(BananaBar2Scanner.TARGETS[c1].from) == tablelength(BananaBar2Scanner.TARGETS[c2].from) then
+          return c1 > c2;
+        end
+        return tablelength(BananaBar2Scanner.TARGETS[c1].from) > tablelength(BananaBar2Scanner.TARGETS[c2].from) 
+      end)
+    local index = BANANA_RAIDSYMBOL_BUTTON_COUNT+1;
+    for _, guid in ipairs(targets) do 
+        BananaBar2Scanner.TARGETMARKS[index] = guid;
+        index = index + 1;
+    end    
+
+
+    for but=1,BANANA_MAX_BUTTONS,1 do
+        if BananaBar2Scanner.TARGETMARKS[but] then
+            local t = BananaBar2Scanner.TARGETS[BananaBar2Scanner.TARGETMARKS[but]];
+            self.Buttons[but]:SetCount(tablelength(t.from));
+            self.Buttons[but]:SetDead(t.info_dead);
+            self.Buttons[but]:SetHuntersmark(t.has_huntersmark);
+            self.Buttons[but].HealthBar:SetMinMaxValues(0,t.info_healthmax);
+            self.Buttons[but].HealthBar:SetValue(t.info_health);
+            self.Buttons[but]:SetMobName(t.info_name);
+            if UnitIsUnit("playertarget",t.info_unit) then
+	            self.Buttons[but]:SetSelected(false)
             else
 	            self.Buttons[but]:SetSelected(false)
+            end
+
+            if but > BANANA_RAIDSYMBOL_BUTTON_COUNT then
+                self.Buttons[but]:SetButtonSymbolExtra(t.info_unit)
             end
         else
             self.Buttons[but]:SetCount(nil);
             self.Buttons[but]:SetDead(false);
+            self.Buttons[but]:SetHuntersmark(false);            
             self.Buttons[but].HealthBar:SetValue(0);
             self.Buttons[but]:SetMobName(nil);
             self.Buttons[but]:SetSelected(false)
+            if but > BANANA_RAIDSYMBOL_BUTTON_COUNT then
+                self.Buttons[but]:SetButtonSymbolExtra(nil)
+            end
         end
     end
-    local ht_count = BANANA_HUNTERSMARK_BUTTON_COUNT;
-    for but=9,9+BANANA_HUNTERSMARK_BUTTON_COUNT-1,1 do
-        if but < BananaBar2Scanner.TSRA.ht_count+9 then
-            self.Buttons[but]:SetCount(BananaBar2Scanner.TSRA[BananaBar2Scanner.HT_FIRST+but-9].fromcount);
-            --self.Buttons[but]:SetDead(BananaBar2Scanner.TSRA[BananaBar2Scanner.HT_FIRST+but-9].info_dead);
-            self.Buttons[but].HealthBar:SetMinMaxValues(0,BananaBar2Scanner.TSRA[BananaBar2Scanner.HT_FIRST+but-9].info_healthmax);
-            self.Buttons[but].HealthBar:SetValue(BananaBar2Scanner.TSRA[BananaBar2Scanner.HT_FIRST+but-9].info_health);
-            self.Buttons[but]:SetMobName(BananaBar2Scanner.TSRA[BananaBar2Scanner.HT_FIRST+but-9].info_name);
-            if UnitIsUnit("playertarget",BananaBar2Scanner.TSRA[BananaBar2Scanner.HT_FIRST+but-9].info_unit) then
-	            self.Buttons[but]:SetSelected(true)
-            else
-	            self.Buttons[but]:SetSelected(false)
-            end
-        else
-            self.Buttons[but]:SetCount(nil);
-            --self.Buttons[but]:SetDead(false);
-            self.Buttons[but].HealthBar:SetValue(0);
-            self.Buttons[but]:SetMobName(nil);
-            self.Buttons[but]:SetSelected(false)
-        end 
-    end
 
-    self:AutoSetSymbols(101);
+    self:AutoSetSymbols("sscombat");
     
     if self.SetSymbolsOnNextUpdate then
     	self.SetSymbolsOnNextUpdate = false;
         if not BananaBar2Scanner:CanSetSymbols() then
-	    return;
+	        return;
         end;
-    	self:AutoSetSymbols(100);
+    	self:AutoSetSymbols("sshotkey");
     end
     local t2=GetTime();
     
@@ -1564,32 +1577,54 @@ end
 
 function BananaBar2:AutoSetSymbols(settype)
     if not BananaBar2Scanner:CanSetSymbols() then
-	return;
+	    return;
     end;
-    if BananaBar2Scanner.TSRA.ut_count > 0 then
-        for i=0,BananaBar2Scanner.TSRA.ut_count-1,1 do
-            local uid = BananaBar2Scanner.TSRA[BananaBar2Scanner.UT_FIRST+i].info_unit;
-            if settype ~= 101 or UnitAffectingCombat(uid) then
-                 local name = UnitName(uid);
-                if self.db.profile.mobsettings[GetLocale()].byname[name] then
-                    if self.db.profile.mobsettings[GetLocale()].byname[name][settype] then
-                        local search = true;
-                        for j=1,8,1 do
-                            if search and BananaBar2Scanner.TSRB[j].used==0 and BananaBar2Scanner.TSRA[j].used==0 then
-                                if self.db.profile.mobsettings[GetLocale()].byname[name][j] then
-                                	BananaBar2:PlaySet();
-                                    self:Print("Setting Symbol "..L[("symbolname"..j)].." on "..name);
-                                    SetRaidTarget(uid,j);          
-                                    BananaBar2Scanner.TSRA[j].used = 1;
-                                    search = false;
-                                end
-                            end
-                        end
+    --self:Print("AutoSetSymbols");
+    targets = {}    
+    local loop = 0
+    for guid,info in pairs(BananaBar2Scanner.TARGETS) do      
+        loop = loop +1;   
+        if tablelength(info.from) > 0 and info.symbol == nil and UnitCanAttack("PLAYER",info.info_unit) and info.symbol == nil then            
+            if UnitAffectingCombat(info.info_unit) then                
+                self:Print(loop..": "..guid)
+                for j=1,8,1 do                
+                    if BananaBar2Scanner.TARGETMARKS[j] == nil then
+                        self:Print("Setting Symbol "..L[("symbolname"..j)].." on "..info.info_name..UnitGUID(info.info_unit));
+                        BananaBar2:PlaySet();
+                        SetRaidTarget(info.info_unit,j);          
+                        info.symbol = j;
+                        BananaBar2Scanner.TARGETMARKS[j] = UnitGUID(info.info_unit);
+                        break;
                     end
-                end
-            end
-        end
+                end            
+            end        
+        end    
     end
+
+--    if BananaBar2Scanner.TSRA.ut_count > 0 then
+--        for i=0,BananaBar2Scanner.TSRA.ut_count-1,1 do
+--            local uid = BananaBar2Scanner.TSRA[BananaBar2Scanner.UT_FIRST+i].info_unit;
+--            if settype ~= "sscombat" or UnitAffectingCombat(uid) then
+--                 local name = UnitName(uid);
+--                if self.db.profile.mobsettings[GetLocale()].byname[name] then
+--                    if self.db.profile.mobsettings[GetLocale()].byname[name][settype] then
+--                        local search = true;
+--                        for j=1,8,1 do
+--                            if search and BananaBar2Scanner.TSRB[j].used==0 and BananaBar2Scanner.TSRA[j].used==0 then
+--                                if self.db.profile.mobsettings[GetLocale()].byname[name][j] then
+  --                                	BananaBar2:PlaySet();
+--                                    self:Print("Setting Symbol "..L[("symbolname"..j)].." on "..name);
+--                                    SetRaidTarget(uid,j);          
+--                                    BananaBar2Scanner.TSRA[j].used = 1;
+--                                    search = false;
+--                                end
+--                            end
+--                        end
+--                    end
+--                end
+--            end
+--        end
+--    end
 end
 
 function BananaBar2:Get_mobsetting(zone,name,setting)
@@ -1610,15 +1645,13 @@ function BananaBar2:AddNewMob(zone,name)
         -- existiert schon
         return;
     end
-    self:Debug("Added new mob: "..UnitName("mouseover"))
     local id = self.db.profile.mobsettings
     if not self.db.profile.mobsettings[zone]  then
         self.db.profile.mobsettings[zone] = { }
     end
     if not self.db.profile.mobsettings[zone][name] then
-        self.db.profile.mobsettings[zone][name] = {
-            symbols = "12345678"
-         }
+        self.db.profile.mobsettings[zone][name] = { }
+        self:Debug("Added new mob: "..UnitName("mouseover"))
     end
 
     AddOptionEntry(zone,name)
@@ -1662,36 +1695,22 @@ function AddOptionEntry(zone,name,mobid)
             name = name,
             desc = name,
             args = {
-                symbols = {
-                    type = "input", 
-                    name = "symbols",
-                    desc = "symbols",
-                    get = function(info) return BananaBar2:Get_mobsetting(zone,name,"symbols"); end,
-                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,"symbols"); end,
-                    order = 99;
-                },
-                hotkey = {
-                    type = "toggle", 
-                    name = L["autosymbolsbyhotkey"],
-                    desc = L["autosymbolsbyhotkeydesc"],
-                    get = function(info) return BananaBar2:Get_mobsetting(zone,name,100); end,
-                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,100); end,
-                    order = 100;
-                },
                 combat = {
                     type = "toggle", 
+                    width = "full",
                     name = L["autosymbolsoncombat"],
                     desc = L["autosymbolsoncombatdesc"],
-                    get = function(info) return BananaBar2:Get_mobsetting(zone,name,101); end,
-                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,101); end,
+                    get = function(info) return BananaBar2:Get_mobsetting(zone,name,"sscombat"); end,
+                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,"sscombat"); end,
                     order = 110;
                 },
                 mouseover = {
                     type = "toggle", 
+                    width = "full",
                     name = L["autosymbolsonmouseover"],
                     desc = L["autosymbolsonmouseoverdesc"],
-                    get = function() return BananaBar2:Get_mobsetting(zone,name,102); end,
-                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,102); end,
+                    get = function() return BananaBar2:Get_mobsetting(zone,name,"ssmo"); end,
+                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,"ssmo"); end,
                     order = 120;
                 },
                 spacer = {
@@ -1703,64 +1722,64 @@ function AddOptionEntry(zone,name,mobid)
                     type = "toggle", 
                     name = "|c"..BANANA_SYMBOL_COLOR1..L["symbolname1"].."|r",
                     desc = L["autosymboldesc"],
-                    get = function() return BananaBar2:Get_mobsetting(zone,name,1); end,
-                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,1); end,
+                    get = function() return BananaBar2:Get_mobsetting(zone,name,"sym1"); end,
+                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,"sym1"); end,
                     order = 201;
                 },
                 symbol2 = {
                     type = "toggle", 
                     name = "|c"..BANANA_SYMBOL_COLOR2..L["symbolname2"].."|r",
                     desc = L["autosymboldesc"],
-                    get = function() return BananaBar2:Get_mobsetting(zone,name,2); end,
-                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,2); end,
+                    get = function() return BananaBar2:Get_mobsetting(zone,name,"sym2"); end,
+                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,"sym2"); end,
                     order = 202;
                 },
                 symbol3 = {
                     type = "toggle", 
                     name = "|c"..BANANA_SYMBOL_COLOR3..L["symbolname3"].."|r",
                     desc = L["autosymboldesc"],
-                    get = function() return BananaBar2:Get_mobsetting(zone,name,3); end,
-                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,3); end,
+                    get = function() return BananaBar2:Get_mobsetting(zone,name,"sym3"); end,
+                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,"sym3"); end,
                     order = 203;
                 },
                 symbol4 = {
                     type = "toggle", 
                     name = "|c"..BANANA_SYMBOL_COLOR4..L["symbolname4"].."|r",
                     desc = L["autosymboldesc"],
-                    get = function() return BananaBar2:Get_mobsetting(zone,name,4); end,
-                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,4); end,
+                    get = function() return BananaBar2:Get_mobsetting(zone,name,"sym4"); end,
+                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,"sym4"); end,
                     order = 204;
                 },
                 symbol5 = {
                     type = "toggle", 
                     name = "|c"..BANANA_SYMBOL_COLOR5..L["symbolname5"].."|r",
                     desc = L["autosymboldesc"],
-                    get = function() return BananaBar2:Get_mobsetting(zone,name,5); end,
-                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,5); end,
+                    get = function() return BananaBar2:Get_mobsetting(zone,name,"sym5"); end,
+                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,"sym5"); end,
                     order = 205;
                 },
                 symbol6 = {
                     type = "toggle", 
                     name = "|c"..BANANA_SYMBOL_COLOR6..L["symbolname6"].."|r",
                     desc = L["autosymboldesc"],
-                    get = function() return BananaBar2:Get_mobsetting(zone,name,6); end,
-                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,6); end,
+                    get = function() return BananaBar2:Get_mobsetting(zone,name,"sym6"); end,
+                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,"sym6"); end,
                     order = 206;
                 },
                 symbol7 = {
                     type = "toggle", 
                     name = "|c"..BANANA_SYMBOL_COLOR7..L["symbolname7"].."|r",
                     desc = L["autosymboldesc"],
-                    get = function() return BananaBar2:Get_mobsetting(zone,name,7); end,
-                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,7); end,
+                    get = function() return BananaBar2:Get_mobsetting(zone,name,"sym7"); end,
+                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,"sym7"); end,
                     order = 207;
                 },
                 symbol8 = {
                     type = "toggle", 
                     name = "|c"..BANANA_SYMBOL_COLOR8..L["symbolname8"].."|r",
                     desc = L["autosymboldesc"],
-                    get = function() return BananaBar2:Get_mobsetting(zone,name,8); end,
-                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,8); end,
+                    get = function() return BananaBar2:Get_mobsetting(zone,name,"sym8"); end,
+                    set = function(info,v) BananaBar2:Set_mobsetting(v,zone,name,"sym8"); end,
                     order = 208;
                 },
             }
@@ -2053,7 +2072,7 @@ function BananaBar2:DragPrepare(dragStartButton,mouseButton)
 end
 
 function BananaBar2:DragStop(dragStopButton,mouseButton)
-	if BananaBar2.Dragging then
+    if BananaBar2.Dragging then
 		BananaBar2.Dragging = false;
         BananaBar2.CancelTimer(self.BananaCursorTimer)
 		self:BananaSetCursor(nil);
@@ -2069,7 +2088,8 @@ function BananaBar2:DragStop(dragStopButton,mouseButton)
 			else	
 				local unit = BananaBar2Scanner:GetUnitBySymbol(self.DragStartButton.ButtonId)
 				if unit then
-					SetRaidTarget(unit,0);
+                    SetRaidTarget(unit,0);
+                    PlayRemove();
 				end
 			end
 		elseif dragStopButton == self.DragStartButton then
@@ -2083,38 +2103,46 @@ end
 
 
 function BananaBar2:DragButtonOnUnit(button,mouseButton)		
-	if button.ButtonId <= 8 then
-		if GetRaidTargetIndex("MOUSEOVER") == button.ButtonId then
-			BananaBar2:PlayRemove();
-			SetRaidTarget("MOUSEOVER", 0);
-		else
-			SetRaidTarget("MOUSEOVER", button.ButtonId);
-			BananaBar2:PlaySet();
-		end
-	else
-		TargetUnit("MOUSEOVER");
-		BananaBar2:SpellHuntersmark();
-		--TargetLastTarget();
-	end
-end
+    if GetRaidTargetIndex("MOUSEOVER") == button.ButtonId then
+        BananaBar2:PlayRemove();
+        SetRaidTarget("MOUSEOVER", 0);
+    else
+        if GetRaidTargetIndex("MOUSEOVER") then
+            local old = GetRaidTargetIndex("MOUSEOVER")
+            if BananaBar2Scanner.TARGETMARKS[old] then
+                BananaBar2Scanner:ChangeSymbol(old,button.ButtonId)
+            else
+                SetRaidTarget("MOUSEOVER", button.ButtonId);
+                BananaBar2:PlaySet();
+            end
+        else
+            SetRaidTarget("MOUSEOVER", button.ButtonId);
+            BananaBar2:PlaySet();
+        end
 
-function BananaBar2:TexCoord(icon,index)
-    if index == 9 then
-        icon:SetTexture(snipershot);            
-        icon:SetTexCoord(0, 1, 0, 1);
-        return;
     end
-    local button = UnitPopupButtons["RAID_TARGET_"..index];
-    local x1 = button.tCoordLeft;
-	local y1 = button.tCoordTop;
-	local x2 = button.tCoordRight;
-	local y2 = button.tCoordBottom;
-    icon:SetTexture("Interface/TargetingFrame/UI-RaidTargetingIcons");            
-	icon:SetTexCoord(x1, x2, y1, y2);
 end
 
-function BananaBar2:Debug(text)
-    --BananaBar2:Print(text)
+function BananaBar2:Debug(value)
+    BananaBar2:Print(dump(value))
+end
+
+function dump(o)
+    if type(o) == 'table' then
+        local s = '{ '
+        for k, v in pairs(o) do
+            if type(k) ~= 'number' then k = '"' .. tostring(k) .. '"' end
+            s = s .. '[' .. tostring(k) .. '] = ' .. dump(v) .. ','
+        end
+        return s .. '} '
+    end
+
+    if type(o) == 'function' then
+        return 'F'
+    end
+
+    return tostring(o)
+
 end
 
 function BananaBar2:IsActive()
@@ -2124,3 +2152,10 @@ end
 
 
 --BananaBar2.dewdrop:FeedAceOptionsTable(AceLibrary("AceDB-2.0"):GetAceOptionsDataTable(BananaBar2))
+function tablelength(T)
+    local count = 0
+    for a in pairs(T) do 
+        count = count + 1 
+    end
+    return count
+end

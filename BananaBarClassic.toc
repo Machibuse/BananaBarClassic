@@ -10,8 +10,7 @@
 ## OptionalDeps: Ace3
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
-## SavedVariables: BananaBar2DB,BananaBar2DataGlobal
-## SavedVariablesPerCharacter: BananaBar2DataGlobalPerChar
+## SavedVariables: BananaBarClassicData
 embeds.xml
 SecureActionQueue-2.0.lua
 BananaBar2.xml

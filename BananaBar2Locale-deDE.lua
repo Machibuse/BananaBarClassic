@@ -66,21 +66,21 @@ L.showbutton                      = "Einzelne buttons Anzeigen/Ausblenden";
 L.showbuttondesc                  = "Anzeigen und ausblenden von Buttons";
 
 -- used for huntersmark buttons
-L.showhuntersmarkdesc             = "Anzeigen und ausblenden von Buttons";	
+L.showunmarkeddesc             = "Anzeigen und ausblenden von Buttons";	
+-- Symbol name for the huntersmark
+L.unmarked                     = "Unmarkiert";
         
 -- Translations for the button names
 -- use RAID_TARGET_1 and so on for the original blizzard names
 -- in our guild we use the name "Condom" for the orange circle
 L.symbolname1                     = RAID_TARGET_1;
-L.symbolname2                     = "Kondom";
+L.symbolname2                     = RAID_TARGET_2;
 L.symbolname3                     = RAID_TARGET_3;
 L.symbolname4                     = RAID_TARGET_4;
 L.symbolname5                     = RAID_TARGET_5;
 L.symbolname6                     = RAID_TARGET_6;
 L.symbolname7                     = RAID_TARGET_7;
 L.symbolname8                     = RAID_TARGET_8;
--- Symbol name for the huntersmark
-L.huntersmark                     = "Jägermal";
 
 -- menu entry to activate the layout mode
 -- in the layoutmode you can move, seperate and concatenate buttons        
@@ -126,16 +126,16 @@ L.action_setsymboldesc            = "Setzt das Symbol des entsprechenden Buttons
 
 -- setting in the mobsettings menu, if activated this mob will get a symbol
 -- if you press the autosymbols key (binding_key)
-L.autosymbolsbyhotkey             = "Aktiviere das automatische setzen von Symbolen durch Hotkey";
+L.autosymbolsbyhotkey             = "Automatische setzen von Symbolen durch Hotkey";
 L.autosymbolsbyhotkeydesc         = "Aktiviert das automatische setzen von Symbolen durch Hotkey für diesen Gegner.";
         
 -- setting in the mobsettings menu, if activated for a mob, this mob gets a symbol 
 -- whenever it enters combat with your group and anyone of the group has targeted it
-L.autosymbolsoncombat             = "Aktiviere das automatische setzen von Symbolen auf Gegner wenn die in den Kampf eintreten";
+L.autosymbolsoncombat             = "Automatisches setzen von Symbolen bei Kampfeintritt";
 L.autosymbolsoncombatdesc         = "Aktiviert das automatische setzen von Symbolen auf Gegner wenn die in den Kampf eintreten für diesen Gegner.";
 
 -- if activated this mob will be SKIPPED for mouse over targeting        
-L.autosymbolsonmouseover          = "Diesen Gegner beim vergeben von Symbolen durch MouseOver ausschließen";
+L.autosymbolsonmouseover          = "Gegner beim setzen Symbolen durch MouseOver ausschließen";
 L.autosymbolsonmouseoverdesc      = "Diesen Gegner beim vergeben von Symbolen durch MouseOver ausschließen";
 
 -- description for the menu entrys for the specific mobs in the mobsettings menu          

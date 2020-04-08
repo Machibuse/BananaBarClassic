@@ -42,6 +42,7 @@ function BananaBar2Button:init(addon,name)
     self.TargetSymbol = getglobal(self.FrameName.."TargetSymbol");
     self.Icon = getglobal(self.FrameName.."Icon");
     self.DeadSymbol = getglobal(self.FrameName.."DeadSymbol");
+    self.HuntersmarkSymbol = getglobal(self.FrameName.."HuntersmarkSymbol");
     self.Arrow1 = getglobal(self.FrameName.."Arrow1");
     self.Arrow2 = getglobal(self.FrameName.."Arrow2");
     self.Arrow3 = getglobal(self.FrameName.."Arrow3");
@@ -63,13 +64,15 @@ function BananaBar2Button:init(addon,name)
     self.showButtonFrame = true;
     self.visible = true;
     
-    self.HealthBar:SetValue(100)
+    self.HealthBar:SetValue(17)
     --self.HealthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar");
     self.HealthBar:SetStatusBarTexture("Interface\\AddOns\\BananaBarClassic\\Images\\Chess128N");
     self.HealthBar:SetStatusBarColor(0,1,0,1);                    
 
     self.dead = false;
     self.showDead = false;
+    self:SetHuntersmark(false);
+
     --self.frame:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonDown", "MiddleButtonUp");
 	self.frame:SetScript("OnLoad", function(frame) self:OnLoad(frame) end)
 	self.frame:SetScript("OnClick", function(frame,button) self:OnClick(button, frame) end)
@@ -81,8 +84,36 @@ end
 
 -- Functions
 
-function BananaBar2Button:SetButtonSymbol(index)
+function BananaBar2Button:SetButtonSymbol(index, unit)
     BananaBar2Button:SetSymbolTexture(self.Icon,index);
+end
+
+function BananaBar2Button:SetButtonSymbolExtra(unit)
+    BananaBar2Button:SetSymbolTexture(self.Icon,0, unit);
+end
+
+function BananaBar2Button:SetSymbolTexture(frame, index, unit)
+    if unit then
+        SetPortraitTexture(frame,unit)
+        frame:SetTexCoord(0, 1, 0, 1);
+        return;
+    end
+    if index <= 0 then
+        frame:SetTexture(nil);
+        return;
+    end
+    if index >= 9 then
+        --frame:SetTexture(BANANA_TEXTURE_HUNTERSMARK);            
+        --frame:SetTexCoord(0, 1, 0, 1);
+    else
+        frame:SetTexture(BANANA_TEXTURE_RAIDICONS);            
+        frame:SetTexCoord(
+            UnitPopupButtons[BANANA_RAID_TARGET_X[index]].tCoordLeft, 
+            UnitPopupButtons[BANANA_RAID_TARGET_X[index]].tCoordRight, 
+            UnitPopupButtons[BANANA_RAID_TARGET_X[index]].tCoordTop, 
+            UnitPopupButtons[BANANA_RAID_TARGET_X[index]].tCoordBottom
+        );
+    end
 end
 
 
@@ -107,6 +138,19 @@ function BananaBar2Button:UpdateDeadSymbol()
         self.DeadSymbol:Show();
     else
         self.DeadSymbol:Hide();
+    end
+end
+
+function BananaBar2Button:SetHuntersmark(huntersmark)
+    self.huntersmark = huntersmark;
+    self:UpdateHuntersmarkSymbol();
+end
+
+function BananaBar2Button:UpdateHuntersmarkSymbol()
+    if self.huntersmark then
+        self.HuntersmarkSymbol:Show();
+    else
+        self.HuntersmarkSymbol:Hide();
     end
 end
 
@@ -444,25 +488,6 @@ end
 
 
 -- STATIC Functions
-
-function BananaBar2Button:SetSymbolTexture(frame, index)
-    if index <= 0 then
-        frame:Hide();            
-        return;
-    end
-    if index >= 9 then
-        frame:SetTexture(BANANA_TEXTURE_HUNTERSMARK);            
-        frame:SetTexCoord(0, 1, 0, 1);
-    else
-        frame:SetTexture(BANANA_TEXTURE_RAIDICONS);            
-        frame:SetTexCoord(
-            UnitPopupButtons[BANANA_RAID_TARGET_X[index]].tCoordLeft, 
-            UnitPopupButtons[BANANA_RAID_TARGET_X[index]].tCoordRight, 
-            UnitPopupButtons[BANANA_RAID_TARGET_X[index]].tCoordTop, 
-            UnitPopupButtons[BANANA_RAID_TARGET_X[index]].tCoordBottom
-        );
-    end
-end
 
 
 function BananaBar2Button:TestDiff(dx1,dy1,dx2,dy2,diff)

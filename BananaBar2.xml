@@ -100,9 +100,21 @@
 						</Anchor>
 					</Anchors>
 				</Texture>
+				<Texture name="$parentHuntersmarkSymbol" file="Interface\AddOns\BananaBarClassic\Images\HuntermarkArrow" hidden="false">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="CENTER">
+							<Offset>
+								<AbsDimension x="-8" y="-8"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
 				<Texture name="$parentDeadSymbol" file="Interface\AddOns\BananaBarClassic\Images\Dead" hidden="true">
 					<Size>
-						<AbsDimension x="32" y="32"/>
+						<AbsDimension x="24" y="24"/>
 					</Size>
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="CENTER">

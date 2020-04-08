@@ -8,266 +8,18 @@ local BananaBar2Scanner = LibStub:NewLibrary("BananaBar2Scanner-2.0", 1)
 
 local SecureActionQueue = LibStub("SecureActionQueue-2.0")
 
--- Constants
-local HUNTERSMARK_TEXTURE = "Interface\\Icons\\Ability_Hunter_SniperShot";  --Magic
-local HUNTERSMARK_TYPE = "Magic";
+
 			
-
-BananaBar2Scanner.RT_MAX = 8; --maximum number of raidsymbol targets
-BananaBar2Scanner.HT_MAX = 80; --maximum number of huntersmark targets
-BananaBar2Scanner.UT_MAX = 80; --maximum number of random targets
-
-
-BananaBar2Scanner.RT_FIRST = 1;   -- starting index for found targets with raid  
-BananaBar2Scanner.HT_FIRST = 101; -- starting index for found targets with huntersmark 
-BananaBar2Scanner.UT_FIRST = 201; -- starting index for found random targets
-
-local IDX_PARTY = 101;
-local IDX_PARTYPET = 201;
-local IDX_RAID = 301;
-local IDX_RAIDPET = 401;
-local IDX_PLAYER = 501;
-local IDX_PET = 601;
-local IDX_PARTYTARGET = 1101;
-local IDX_PARTYPETTARGET = 1201;
-local IDX_RAIDTARGET = 1301;
-local IDX_RAIDPETTARGET = 1401;
-local IDX_PLAYERTARGET = 1501;
-local IDX_PETTARGET = 1601;
-
-
-
-BananaBar2Scanner.UNITS = {
-    [101] = "party1",
-    [102] = "party2",
-    [103] = "party3",
-    [104] = "party4",
-
-    [201] = "partypet1",
-    [202] = "partypet2",
-    [203] = "partypet3",
-    [204] = "partypet4",
-
-    [301] = "raid1",
-    [302] = "raid2",
-    [303] = "raid3",
-    [304] = "raid4",
-    [305] = "raid5",
-    [306] = "raid6",
-    [307] = "raid7",
-    [308] = "raid8",
-    [309] = "raid9",
-    [310] = "raid10",
-    [311] = "raid11",
-    [312] = "raid12",
-    [313] = "raid13",
-    [314] = "raid14",
-    [315] = "raid15",
-    [316] = "raid16",
-    [317] = "raid17",
-    [318] = "raid18",
-    [319] = "raid19",
-    [320] = "raid20",
-    [321] = "raid21",
-    [322] = "raid22",
-    [323] = "raid23",
-    [324] = "raid24",
-    [325] = "raid25",
-    [326] = "raid26",
-    [327] = "raid27",
-    [328] = "raid28",
-    [329] = "raid29",
-    [330] = "raid30",
-    [331] = "raid31",
-    [332] = "raid32",
-    [333] = "raid33",
-    [334] = "raid34",
-    [335] = "raid35",
-    [336] = "raid36",
-    [337] = "raid37",
-    [338] = "raid38",
-    [339] = "raid39",
-    [340] = "raid40",
-
-    [401] = "raidpet1",
-    [402] = "raidpet2",
-    [403] = "raidpet3",
-    [404] = "raidpet4",
-    [405] = "raidpet5",
-    [406] = "raidpet6",
-    [407] = "raidpet7",
-    [408] = "raidpet8",
-    [409] = "raidpet9",
-    [410] = "raidpet10",
-    [411] = "raidpet11",
-    [412] = "raidpet12",
-    [413] = "raidpet13",
-    [414] = "raidpet14",
-    [415] = "raidpet15",
-    [416] = "raidpet16",
-    [417] = "raidpet17",
-    [418] = "raidpet18",
-    [419] = "raidpet19",
-    [420] = "raidpet20",
-    [421] = "raidpet21",
-    [422] = "raidpet22",
-    [423] = "raidpet23",
-    [424] = "raidpet24",
-    [425] = "raidpet25",
-    [426] = "raidpet26",
-    [427] = "raidpet27",
-    [428] = "raidpet28",
-    [429] = "raidpet29",
-    [430] = "raidpet30",
-    [431] = "raidpet31",
-    [432] = "raidpet32",
-    [433] = "raidpet33",
-    [434] = "raidpet34",
-    [435] = "raidpet35",
-    [436] = "raidpet36",
-    [437] = "raidpet37",
-    [438] = "raidpet38",
-    [439] = "raidpet39",
-    [440] = "raidpet40",
-
-    [501] = "player",
-    [601] = "pet",
-
-    [1101] = "party1target",
-    [1102] = "party2target",
-    [1103] = "party3target",
-    [1104] = "party4target",
-
-    [1201] = "partypet1target",
-    [1202] = "partypet2target",
-    [1203] = "partypet3target",
-    [1204] = "partypet4target",
-
-    [1301] = "raid1target",
-    [1302] = "raid2target",
-    [1303] = "raid3target",
-    [1304] = "raid4target",
-    [1305] = "raid5target",
-    [1306] = "raid6target",
-    [1307] = "raid7target",
-    [1308] = "raid8target",
-    [1309] = "raid9target",
-    [1310] = "raid10target",
-    [1311] = "raid11target",
-    [1312] = "raid12target",
-    [1313] = "raid13target",
-    [1314] = "raid14target",
-    [1315] = "raid15target",
-    [1316] = "raid16target",
-    [1317] = "raid17target",
-    [1318] = "raid18target",
-    [1319] = "raid19target",
-    [1320] = "raid20target",
-    [1321] = "raid21target",
-    [1322] = "raid22target",
-    [1323] = "raid23target",
-    [1324] = "raid24target",
-    [1325] = "raid25target",
-    [1326] = "raid26target",
-    [1327] = "raid27target",
-    [1328] = "raid28target",
-    [1329] = "raid29target",
-    [1330] = "raid30target",
-    [1331] = "raid31target",
-    [1332] = "raid32target",
-    [1333] = "raid33target",
-    [1334] = "raid34target",
-    [1335] = "raid35target",
-    [1336] = "raid36target",
-    [1337] = "raid37target",
-    [1338] = "raid38target",
-    [1339] = "raid39target",
-    [1340] = "raid40target",
-
-    [1401] = "raidpet1target",
-    [1402] = "raidpet2target",
-    [1403] = "raidpet3target",
-    [1404] = "raidpet4target",
-    [1405] = "raidpet5target",
-    [1406] = "raidpet6target",
-    [1407] = "raidpet7target",
-    [1408] = "raidpet8target",
-    [1409] = "raidpet9target",
-    [1410] = "raidpet10target",
-    [1411] = "raidpet11target",
-    [1412] = "raidpet12target",
-    [1413] = "raidpet13target",
-    [1414] = "raidpet14target",
-    [1415] = "raidpet15target",
-    [1416] = "raidpet16target",
-    [1417] = "raidpet17target",
-    [1418] = "raidpet18target",
-    [1419] = "raidpet19target",
-    [1420] = "raidpet20target",
-    [1421] = "raidpet21target",
-    [1422] = "raidpet22target",
-    [1423] = "raidpet23target",
-    [1424] = "raidpet24target",
-    [1425] = "raidpet25target",
-    [1426] = "raidpet26target",
-    [1427] = "raidpet27target",
-    [1428] = "raidpet28target",
-    [1429] = "raidpet29target",
-    [1430] = "raidpet30target",
-    [1431] = "raidpet31target",
-    [1432] = "raidpet32target",
-    [1433] = "raidpet33target",
-    [1434] = "raidpet34target",
-    [1435] = "raidpet35target",
-    [1436] = "raidpet36target",
-    [1437] = "raidpet37target",
-    [1438] = "raidpet38target",
-    [1439] = "raidpet39target",
-    [1440] = "raidpet40target",
-
-    [1501] = "playertarget",
-    [1601] = "pettarget",
-}
-
-
-
-
-
-
-
-
 
 
 
 --- Constructor
 function BananaBar2Scanner:Initialize()
-    BananaBar2Scanner.TSRA = {ht_count = 0,ut_count = 0};
-    BananaBar2Scanner.TSRB = {ht_count = 0,ut_count = 0};
-    for i = 0,BananaBar2Scanner.RT_MAX-1,1 do
-        BananaBar2Scanner.TSRA[BananaBar2Scanner.RT_FIRST+i] = {used = 0};
-        BananaBar2Scanner.TSRB[BananaBar2Scanner.RT_FIRST+i] = {used = 0};
-        BananaBar2Scanner.TSRA[BananaBar2Scanner.RT_FIRST+i].from = {};
-        BananaBar2Scanner.TSRB[BananaBar2Scanner.RT_FIRST+i].from = {};
-    end
-    
-    for i = 0,BananaBar2Scanner.HT_MAX-1,1 do
-        BananaBar2Scanner.TSRA[BananaBar2Scanner.HT_FIRST+i] = {};
-        BananaBar2Scanner.TSRB[BananaBar2Scanner.HT_FIRST+i] = {};
-        BananaBar2Scanner.TSRA[BananaBar2Scanner.HT_FIRST+i].from = {};
-        BananaBar2Scanner.TSRB[BananaBar2Scanner.HT_FIRST+i].from = {};
-    end
-    
-    for i = 0,BananaBar2Scanner.UT_MAX-1,1 do
-        BananaBar2Scanner.TSRA[BananaBar2Scanner.UT_FIRST+i] = {};
-        BananaBar2Scanner.TSRB[BananaBar2Scanner.UT_FIRST+i] = {};
-        BananaBar2Scanner.TSRA[BananaBar2Scanner.UT_FIRST+i].from = {};
-        BananaBar2Scanner.TSRB[BananaBar2Scanner.UT_FIRST+i].from = {};
-    end
+    self.TARGETS = { };
+    self.TARGETMARKS = { };
 end
 
-
-
-function BananaBar2Scanner:AssistScan(i,target,unit,tt)
+function BananaBar2Scanner:AssistScan(i,target,unit,raidIndex)
 	
 	local tooltipInfo1 = nil;
 	local tooltipInfo2 = nil;
@@ -297,7 +49,7 @@ function BananaBar2Scanner:AssistScan(i,target,unit,tt)
 		BananaBar2.AssistButtons[i].AssistUnit = unit;
 		BananaBar2.AssistButtons[i].AssistTarget = target;
 
-		local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(tt);
+		local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(raidIndex);
 
 		if not online then
 			BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_OFFLINE);
@@ -370,38 +122,11 @@ function BananaBar2Scanner:AssistScan(i,target,unit,tt)
 		tooltipInfo1 = nil;
 		tooltipInfo2 = nil;
 	end
-	if not MT then
-		MT = BananaBar2Scanner:GetMt(unit);
-		if MT then
-			BananaBar2.AssistButtons[i]:SetButtonName2(MT)
-		else
-			BananaBar2.AssistButtons[i]:SetButtonName2("")
-		end
-	else
-		BananaBar2.AssistButtons[i]:SetButtonName(MT)
-	end
+    BananaBar2.AssistButtons[i]:SetButtonName2("") -- MT ehemals
 	BananaBar2.AssistButtons[i].TooltipInfo1 = tooltipInfo1;
 	BananaBar2.AssistButtons[i].TooltipInfo2 = tooltipInfo2;
 end
 
-function BananaBar2Scanner:GetMt(unit)
-	if UnitExists(unit) then
-		if CT_RA_MainTanks then
-			name = UnitName(unit);			
-			if name then
-				for i=1,10,1 do
-					if CT_RA_MainTanks[i] == name then
-						if i==10 then
-							i = 0
-						end
-						return i;
-					end 								
-				end
-			end
-		end
-	end
-	return nil;
-end
 
 local gruppen =
 {
@@ -442,217 +167,110 @@ function BananaBar2Scanner:AssistScanning()
 	end    
 	for i=1,8,1 do
 		for j=0,4,1 do
-			self:AssistScan(i*5+j-4,BananaBar2Scanner.UNITS[1300+gruppen[i][j]],BananaBar2Scanner.UNITS[300+gruppen[i][j]],gruppen[i][j]); 
+			self:AssistScan(i*5+j-4,"RAIDTARGET"..gruppen[i][j],"RAID"..gruppen[i][j],gruppen[i][j]); 
 		end    
 	end    
 	
 end
 
+function BananaBar2Scanner:GetUnitsToScan()
+    local units = {}
+    if UnitInRaid("player") then
+        for unitNumber=1,40,1 do
+            units["RAID"..unitNumber] = "";
+            units["RAID"..unitNumber.."TARGET"] = "RAID"..unitNumber;
+            units["RAIDPET"..unitNumber] = "";
+            units["RAIDPET"..unitNumber.."TARGET"] = "RAIDPET"..unitNumber;
+        end    
+    else
+        units["PLAYER"] = "";
+        units["PLAYERTARGET"] = "PLAYER";
+        units["PET"] = "";
+        units["PETTARGET"] = "PET";
+
+        if UnitInParty("player") then
+            for unitNumber=1,4,1 do
+                units["PARTY"..unitNumber] = "";
+                units["PARTY"..unitNumber.."TARGET"] = "PARTY"..unitNumber;
+                units["PARTYPET"..unitNumber] = "";
+                units["PARTYPET"..unitNumber.."TARGET"] = "PARTYPET"..unitNumber;
+            end    
+        end
+    end
+    units["MOUSEOVER"] = "MOUSEOVER";
+    return units;
+end
+
 function BananaBar2Scanner:Scan()
 
 
-    self:ResetScanBlock(BananaBar2Scanner.TSRA)
+    self:ResetScanBlock()
+
     self:AssistScanning();
 
+    local unitsToScan = self:GetUnitsToScan();
 
-
-    if UnitInRaid("player") then
-        BananaBar2:Debug("Scanning Raid...");
-        for i=1,GetNumGroupMembers(),1 do
-          self:ScanUnit(BananaBar2Scanner.UNITS[300+i],nil); --raid*
-          self:ScanUnit(BananaBar2Scanner.UNITS[1300+i],BananaBar2Scanner.UNITS[300+i]); --raid*target
-        end    
-
-        for i=1,GetNumGroupMembers(),1 do
-          self:ScanUnit(BananaBar2Scanner.UNITS[400+i],nil); --raidpet*
-          self:ScanUnit(BananaBar2Scanner.UNITS[1400+i],BananaBar2Scanner.UNITS[400+i]); --raidpet*target
-        end    
-        
-        self:AssistScanning();
-        
-    elseif UnitInParty("player") then
-        BananaBar2:Debug("Scanning Party...");
-        -- party
-        self:ScanUnit(BananaBar2Scanner.UNITS[501],nil); --player
-        self:ScanUnit(BananaBar2Scanner.UNITS[1501],BananaBar2Scanner.UNITS[501]); --playertarget
-
-        self:ScanUnit(BananaBar2Scanner.UNITS[601],nil); --pet
-        self:ScanUnit(BananaBar2Scanner.UNITS[1601],BananaBar2Scanner.UNITS[601]); --pettarget
-
-        for i=1,GetNumGroupMembers(),1 do
-          self:ScanUnit(BananaBar2Scanner.UNITS[100+i],nil); --party*
-          self:ScanUnit(BananaBar2Scanner.UNITS[1100+i],BananaBar2Scanner.UNITS[100+i]); --party*target
-        end    
-
-        for i=1,GetNumGroupMembers(),1 do
-          self:ScanUnit(BananaBar2Scanner.UNITS[200+i],nil); --partypet*
-          self:ScanUnit(BananaBar2Scanner.UNITS[1200+i],BananaBar2Scanner.UNITS[200+i]); --partypet*target
-        end    
-    else
-        BananaBar2:Debug("Scanning Single...");
-        self:ScanUnit(BananaBar2Scanner.UNITS[501],nil); --player
-        self:ScanUnit(BananaBar2Scanner.UNITS[1501],BananaBar2Scanner.UNITS[501]); --playertarget
-
-        self:ScanUnit(BananaBar2Scanner.UNITS[601],nil); --pet
-        self:ScanUnit(BananaBar2Scanner.UNITS[1601],BananaBar2Scanner.UNITS[601]); --pettarget
-    end    
-  
-end
-
-
-function BananaBar2Scanner:Switch()
-    local x = BananaBar2Scanner.TSRA;
-    BananaBar2Scanner.TSRA = BananaBar2Scanner.TSRB;
-    BananaBar2Scanner.TSRB = x;
-    self:ResetScanBlock(BananaBar2Scanner.TSRA)
+    for unit,unitparent in pairs(unitsToScan) do
+        self:ScanUnit(unit,unitparent); 
+    end
 end
 
 function BananaBar2Scanner:ResetScanBlock(block)
-    block.ht_count = 0;
-    block.ut_count = 0;
-    for i = 0,BananaBar2Scanner.RT_MAX-1,1 do
-        block[BananaBar2Scanner.RT_FIRST+i].used = 0;
-    end
+    self.TARGETS = { };
+    self.TARGETMARKS = { };
 end
 
 function BananaBar2Scanner:ScanUnit(unit,source)
-    --BananaBar2:Print("ScanUnit "..(unit or "err").." "..(source or ""));
     
+    if source == "" then
+        source = nil;
+    end
+
     if UnitExists(unit) then
-        local rti = GetRaidTargetIndex(unit) or 0
-        if rti ~= 0 then
-            self:AddNewOrExistingRaidSymbolTarget(rti,unit,source);
-            return;
-        end
-        -- checking if it is an already known target should be fastern than checking for huntersmark debuff
-        -- if source is set, chechunit is a target of an other unit
-        if source then
-            if self:TestScanThisTarget(unit) then
-                local ant = self:FindAlreadyScannedHtOrUt(unit);
-                if ant then
-                    -- yes it is an already known target in this scan
-                    if ant < BananaBar2Scanner.UT_FIRST then
-                        -- it is known al huntersmark target
-                        self:AddSourceToExistingHuntersmarkTarget(ant,source)
-                    else
-                        -- it is known as random target
-                        self:AddSourceToExistingUnmarkedTarget(ant,source)
-                    end
-                else
-                    if self:UnitHasHuntersMark(unit) then
-                        self:AddNewHuntersmarkTarget(unit,source)
-                    else
-                        self:AddNewUnmarkedTarget(unit,source)
-                    end
-                end
-            end
-        end
+        --BananaBar2:Print("ScanUnit "..unit);    
+        local rti = GetRaidTargetIndex(unit)
+        
+        self:AddTargetToList(rti,unit,source);
     end
 end
 
 
-function BananaBar2Scanner:AddNewOrExistingRaidSymbolTarget(rti,unit,source)
-    --BananaBar2:Debug("AddNewOrExistingRaidSymbolTarget");
-    if BananaBar2Scanner.TSRA[rti].used == 1 then
-        -- this symbol has already been found before, fields already filled
-        if source then
-            BananaBar2Scanner.TSRA[rti].from[BananaBar2Scanner.TSRA[rti].fromcount] = source;
-            BananaBar2Scanner.TSRA[rti].fromcount = BananaBar2Scanner.TSRA[rti].fromcount+1;
-        end
-    else
-        BananaBar2Scanner.TSRA[rti].used = 1;
-        if source then
-            BananaBar2Scanner.TSRA[rti].from[0] = source;
-            BananaBar2Scanner.TSRA[rti].fromcount = 1;
-        else
-            BananaBar2Scanner.TSRA[rti].fromcount = 0;
-        end
-        self:FillTargetInfo(rti,unit);
-    end
-end
-
-function BananaBar2Scanner:FindAlreadyScannedHtOrUt(unit)
-    --assert(unit);
-    if BananaBar2Scanner.TSRA.ht_count > 0 then
-        for i = BananaBar2Scanner.HT_FIRST,BananaBar2Scanner.HT_FIRST+BananaBar2Scanner.TSRA.ht_count-1,1 do
-            if UnitIsUnit(unit,BananaBar2Scanner.TSRA[i].info_unit) then
-                return i;
-            end
+function BananaBar2Scanner:AddTargetToList(rti,unit,source)
+    local guid = UnitGUID(unit)
+    
+    if rti then
+        if self.TARGETMARKS[rti] == nil then
+            self.TARGETMARKS[rti] = guid
         end
     end
-    if BananaBar2Scanner.TSRA.ut_count > 0 then
-        for i = BananaBar2Scanner.UT_FIRST,BananaBar2Scanner.UT_FIRST+BananaBar2Scanner.TSRA.ut_count-1,1 do
-            if UnitIsUnit(unit,BananaBar2Scanner.TSRA[i].info_unit) then
-                return i;
-            end
-        end
+
+    if self.TARGETS[guid] == nil then
+        self.TARGETS[guid] = { }
+        self.TARGETS[guid].from = {}
+        self.TARGETS[guid].symbol = rti;
+        self.TARGETS[guid].info_unit = unit;
+        self.TARGETS[guid].info_name = UnitName(unit);
+        self.TARGETS[guid].info_dead = UnitIsDead(unit);
+        self.TARGETS[guid].info_health = UnitHealth(unit);
+        self.TARGETS[guid].info_healthmax = UnitHealthMax(unit);
+        self.TARGETS[guid].has_huntersmark = self:UnitHasHuntersMark(unit)
     end
-    return nil;    
-end
-
-function BananaBar2Scanner:AddSourceToExistingHuntersmarkTarget(ant,source)
-    --assert(ant);
-    --assert(source);
-    -- this symbol has already been found before, fields already filled
-    BananaBar2Scanner.TSRA[ant].from[BananaBar2Scanner.TSRA[ant].fromcount] = source;
-    BananaBar2Scanner.TSRA[ant].fromcount = BananaBar2Scanner.TSRA[ant].fromcount+1;
-end
-
-function BananaBar2Scanner:AddSourceToExistingUnmarkedTarget(ant,source)
-    --assert(ant);
-    --assert(source);
-    -- this symbol has already been found before, fields already filled
-    BananaBar2Scanner.TSRA[ant].from[BananaBar2Scanner.TSRA[ant].fromcount] = source;
-    BananaBar2Scanner.TSRA[ant].fromcount = BananaBar2Scanner.TSRA[ant].fromcount+1;
-end
-
-function BananaBar2Scanner:AddNewHuntersmarkTarget(unit,source)
-    --assert(unit);
-    --assert(source);
-    local num = BananaBar2Scanner.HT_FIRST+BananaBar2Scanner.TSRA.ht_count;
-    BananaBar2Scanner.TSRA.ht_count = BananaBar2Scanner.TSRA.ht_count+1;
---    if not BananaBar2Scanner.TSRA[num].from then
---        BananaBar2Scanner.TSRA[num].from = {};
---    end
-    BananaBar2Scanner.TSRA[num].from[0] = source;
-    BananaBar2Scanner.TSRA[num].fromcount = 1;
-    self:FillTargetInfo(num,unit);
-end
-
-function BananaBar2Scanner:AddNewUnmarkedTarget(unit,source)
-    --assert(unit);
-    --assert(source);
-    local num = BananaBar2Scanner.UT_FIRST+BananaBar2Scanner.TSRA.ut_count;
-    BananaBar2Scanner.TSRA.ut_count = BananaBar2Scanner.TSRA.ut_count+1;
---    if not BananaBar2Scanner.TSRA[num].from then
---        BananaBar2Scanner.TSRA[num].from = {};
---    end
-    BananaBar2Scanner.TSRA[num].from[0] = source;
-    BananaBar2Scanner.TSRA[num].fromcount = 1;
-    self:FillTargetInfo(num,unit);
-end
-
-function BananaBar2Scanner:FillTargetInfo(num,unit)
-    BananaBar2Scanner.TSRA[num].info_unit = unit;
-    BananaBar2Scanner.TSRA[num].info_name = UnitName(unit);
-    BananaBar2Scanner.TSRA[num].info_dead = UnitIsDead(unit);
-    BananaBar2Scanner.TSRA[num].info_health = UnitHealth(unit);
-    BananaBar2Scanner.TSRA[num].info_healthmax = UnitHealthMax(unit);
+    
+    if source then
+        self.TARGETS[guid].from[source] = 1;
+    end
 end
 
 function BananaBar2Scanner:UnitHasHuntersMark(unit)
     local iIterator = 1
-    local debuffName, debuffRank, debuffTexture, debuffApplications, debuffDispelType = UnitDebuff(unit, iIterator,false);
+    local debuffName, debuffTexture, debuffApplications, debuffDispelType = UnitDebuff(unit, iIterator);
     while (debuffTexture) do
-        if debuffTexture==HUNTERSMARK_TEXTURE then
-       		BananaBar2:Debug(debuffDispelType);
-            if debuffDispelType == HUNTERSMARK_TYPE then
-        		BananaBar2:Debug(HUNTERSMARK_TYPE);
-                return true
-            end
+
+        if debuffTexture==132212 then
+            return true
         end
         iIterator = iIterator + 1
-    	debuffName, debuffRank, debuffTexture, debuffApplications, debuffDispelType = UnitDebuff(unit, iIterator,false);
+    	debuffName, debuffTexture, debuffApplications, debuffDispelType = UnitDebuff(unit, iIterator);
     end
     return false
 end
@@ -674,9 +292,9 @@ function BananaBar2Scanner:CanSetSymbols()
             return true;
         end
     elseif UnitInParty("player") then
-        if UnitIsGroupLeader("player") then
-            return true;
-        end
+        return true;
+    else
+        return true;
     end
     return false;
 end
@@ -697,76 +315,52 @@ function BananaBar2Scanner:ChangeSymbol(indexFrom, indexTo)
 		if unit2 then
 			--swap
 			SetRaidTarget(unit1,indexTo);
-			SetRaidTarget(unit2,indexFrom);
+            SetRaidTarget(unit2,indexFrom);
+            BananaBar2:PlaySet();
+            BananaBar2:PlayRemove();
 		else
 			--move
 			SetRaidTarget(unit1,indexTo);
+            BananaBar2:PlaySet();
+            BananaBar2:PlayRemove();
 		end
 	else
-		if unit2 then
+		if unit2 thensw
 			--move
 			SetRaidTarget(unit2,indexFrom);
+            BananaBar2:PlaySet();
+            BananaBar2:PlayRemove();
 		else
 			BananaBar2:PlayError();
 		end
 	end
 end
 
-
 function BananaBar2Scanner:GetUnitBySymbol(index)
-    if index >= BananaBar2Scanner.RT_FIRST and index <= BananaBar2Scanner.RT_MAX then
-        if BananaBar2Scanner.TSRA[index].used == 1 then
-            BananaBar2:Debug(BananaBar2Scanner.TSRA[index].info_unit);
-            --search direct
-            if GetRaidTargetIndex(BananaBar2Scanner.TSRA[index].info_unit) == index then
-                return BananaBar2Scanner.TSRA[index].info_unit;
-            else
-              --search indirect         
-              for from=0,BananaBar2Scanner.TSRA[index].fromcount-1,1 do
-                  --BananaBar2:Print("symbol "..index.." ist targeted by "..BananaBar2Scanner.TSRA[index].from[from]);
-                  if GetRaidTargetIndex(BananaBar2Scanner.TSRA[index].from[from].."target") == index then
-                      return BananaBar2Scanner.TSRA[index].from[from].."target";
-                  else
-                      return nil; 
-                  end
-              end
-              return nil; 
-            end
-        else
-			return nil; 
-        end
-	elseif index >= 9 then
-	    if index < BananaBar2Scanner.TSRA.ht_count+9 then
-			if BananaBar2Scanner:UnitHasHuntersMark(BananaBar2Scanner.TSRA[index-9+BananaBar2Scanner.HT_FIRST].info_unit) then
-				AssistUnit(BananaBar2Scanner.TSRA[index-9+BananaBar2Scanner.HT_FIRST].from[0]);
-				BananaBar2:Debug("AssistUnit: "..BananaBar2Scanner.TSRA[index-9+BananaBar2Scanner.HT_FIRST].from[0]);
-			else
-				BananaBar2:Debug("Target Found but has no huntersmark");
-			end
-		else
-			BananaBar2:Debug("Not used");
-	    end
+    if self.TARGETMARKS[index] then
+        return self.TARGETS[self.TARGETMARKS[index]].info_unit
     end
+    return nil;
 end
 
-
-
-
-
 function BananaBar2Scanner:SetSymbol(index)
-	if index <= 8 then
-		if GetRaidTargetIndex("target") == index then
-			BananaBar2:PlayRemove();
-			SetRaidTarget("target", 0);
-		else
-			SetRaidTarget("target", index);
-			BananaBar2:PlaySet();
-		end
-	else
-		BananaBar2:SpellHuntersmark();
-	end
+    BananaBar2:Print("ss")
+    if GetRaidTargetIndex("target") == index then
+        BananaBar2:PlayRemove();
+        SetRaidTarget("target", 0);
+    else
+        SetRaidTarget("target", index);
+        BananaBar2:PlaySet();
+    end
 end
 
 
 BananaBar2Scanner:Initialize();
 
+function tablelength(T)
+    local count = 0
+    for a in pairs(T) do 
+        count = count + 1 
+    end
+    return count
+end
