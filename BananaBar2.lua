@@ -84,6 +84,7 @@ options = {
 
         mobsettings = {
             type = "group", 
+            hidden = true,
             name = L["mobsettings"],
             desc = L["mobsettingsdesc"],
             args = {
@@ -95,6 +96,7 @@ options = {
             type = "group", 
             name = L["mousebutton"],
             desc = L["mousebuttondesc"],
+            hidden = true,
             args = {
                 action_config = {
                     type = "group", 
@@ -247,6 +249,7 @@ options = {
             args = {
                 scale = {
                     type = "range",
+                    width = "full",
                     name = L["scale"],
                     desc = L["scaledesc"],
                     get = function() return BananaBar2:Get_scale() end,
@@ -256,6 +259,7 @@ options = {
                 },
                 scaleassist = {
                     type = "range",
+                    width = "full",
                     name = L["scaleassist"],
                     desc = L["scaleassistdesc"],
                     get = function() return BananaBar2:Get_scaleassist() end,
@@ -265,6 +269,7 @@ options = {
                 },
                 hideunused = {
                     type = "toggle",
+                    width = "full",
                     name = L["hideunused"],
                     desc = L["hideunuseddesc"],
                     get = function() return BananaBar2:Get_hideunused() end,
@@ -273,6 +278,7 @@ options = {
                 },
                 hideframes = {
                     type = "toggle",
+                    width = "full",
                     name = L["hidebuttonframes"],
                     desc = L["hidebuttonframesdesc"],
                     get = function() return BananaBar2:Get_hidebuttonframes() end,
@@ -281,6 +287,7 @@ options = {
                 },
                 markdead = {
                     type = "toggle",
+                    width = "full",
                     name = L["markdead"],
                     desc = L["markdeaddesc"],
                     get = function() return BananaBar2:Get_markdead() end,
@@ -289,6 +296,7 @@ options = {
                 },
                 showinraid = {
                     type = "toggle",
+                    width = "full",
                     name = L["showinraid"],
                     desc = L["showinraiddesc"],
                     get = function() return BananaBar2:Get_showinraid() end,
@@ -297,6 +305,7 @@ options = {
                 },
                 showinparty = {
                     type = "toggle",
+                    width = "full",
                     name = L["showinparty"],
                     desc = L["showinpartydesc"],
                     get = function() return BananaBar2:Get_showinparty() end,
@@ -305,6 +314,7 @@ options = {
                 },
                 showoutofgroup = {
                     type = "toggle",
+                    width = "full",
                     name = L["showoutofgroup"],
                     desc = L["showoutofgroupdesc"],
                     get = function() return BananaBar2:Get_showoutofgroup() end,
@@ -313,6 +323,7 @@ options = {
                 },
                 showraidinfo = {
                     type = "toggle",
+                    width = "full",
                     name = L["showraidinfo"],
                     desc = L["showraidinfodesc"],
                     get = function() return BananaBar2:Get_showraidinfo() end,
@@ -321,28 +332,14 @@ options = {
                 },
                 showextrainfo = {
                     type = "toggle",
+                    width = "full",
                     name = L["showextrainfo"],
                     desc = L["showextrainfodesc"],
                     get = function() return BananaBar2:Get_showextrainfo() end,
                     set = function(info,v) BananaBar2:Set_showextrainfo(v) end,
                     order = 24,
                 },
-                showiconsonctraidmt = {
-                    type = "toggle",
-                    name = L["showiconsonctraidmt"],
-                    desc = L["showiconsonctraidmtdesc"],
-                    get = function() return BananaBar2:Get_showiconsonctraidmt() end,
-                    set = function(info,v) BananaBar2:Set_showiconsonctraidmt(v) end,
-                    order = 25,
-                },
-                showiconsonctraidpl = {
-                    type = "toggle",
-                    name = L["showiconsonctraidpl"],
-                    desc = L["showiconsonctraidpldesc"],
-                    get = function() return BananaBar2:Get_showiconsonctraidpl() end,
-                    set = function(info,v) BananaBar2:Set_showiconsonctraidpl(v) end,
-                    order = 26,
-                },
+
 
 
                 buttons = {
@@ -1673,10 +1670,6 @@ end
 --/script BananaBar2:Print(GetRealZoneText());
 --/script BananaBar2:Print(GetRealZoneText().." /// "..GetZoneText());
 function BananaBar2:AddNewMob(zone,name)
-    if self.db.profile.mobsettings[GetLocale()].byname[name] then
-        -- existiert schon
-        return;
-    end
     local id = self.db.profile.mobsettings
     if not self.db.profile.mobsettings[zone]  then
         self.db.profile.mobsettings[zone] = { }

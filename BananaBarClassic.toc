@@ -16,6 +16,8 @@ SecureActionQueue-2.0.lua
 BananaBar2.xml
 BananaBarConstants.lua
 BananaBar2Locale-deDE.lua
+BananaBar2Locale-enUS.lua
+BananaBar2Locale-enGB.lua
 BananaBar2Button.lua
 BananaBar2AssistButton.lua
 BananaBar2.lua
