@@ -38,6 +38,10 @@ L.binding_key                     = "Taste zum setzen von Symbolen auf alle erre
 L.binding_search                  = "Taste zum suchen von Symbolen durch Mouseover";
 
 
+L.autosetcombat                  = "Symbole automatisch auf Mobs bei Kampfeintritt";
+L.autosetcombatdesc              = "Setze Symbole automatisch auf Mobs die in den Kampf eintreten";
+
+
 -- the submenu where you can find all the settings corresponding to all visual effects
 -- of bananabar. For example "Hide buttons”, "button size”, "show button frames” etc.
 L.design                          = "Visuelle Einstellungen";

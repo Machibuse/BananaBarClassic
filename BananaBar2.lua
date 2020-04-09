@@ -1,4 +1,4 @@
-wBananaBar2 = LibStub("AceAddon-3.0"):NewAddon("BananaBar2", "AceConsole-3.0", "AceHook-3.0","AceEvent-3.0","AceBucket-3.0","AceTimer-3.0");
+BananaBar2 = LibStub("AceAddon-3.0"):NewAddon("BananaBar2", "AceConsole-3.0", "AceHook-3.0","AceEvent-3.0","AceBucket-3.0","AceTimer-3.0");
 
 local L = LibStub("AceLocale-3.0"):GetLocale("BananaBar2")
 
@@ -53,6 +53,35 @@ options = {
             min = 0.1, max = 2, step = 0.1,
             order = 1,
         },
+		reset = {
+			name = L["reset"],
+			desc = L["resetdesc"],
+            width = "full",
+			type = "execute",
+			func = function()
+				BananaBar2:ResetSettings()
+			end,
+		},			
+
+        layoutmode = {
+            type = 'toggle',
+            name = L["layoutmode"],
+            width = "full",
+            desc = L["layoutmodedesc"],
+            get = function() return BananaBar2:Get_layoutmode() end,
+            set = function(info,v) BananaBar2:Set_layoutmode(v) end,
+            order = 5,
+        },
+        autosetcombat = {
+            type = 'toggle',
+            width = "full",
+            name = L["autosetcombat"],
+            desc = L["autosetcombatdesc"],
+            get = function() return BananaBar2:Get_autosetcombat() end,
+            set = function(info,v) BananaBar2:Set_autosetcombat(v) end,
+            order = 5,
+        },
+
         mobsettings = {
             type = "group", 
             name = L["mobsettings"],
@@ -423,24 +452,7 @@ options = {
             },
         },
         
-		reset = {
-			name = L["reset"],
-			desc = L["resetdesc"],
-			type = "execute",
-			func = function()
-				BananaBar2:ResetSettings()
-			end,
-		},			
 
-        layoutmode = {
-            type = 'toggle',
-            name = L["layoutmode"],
-            desc = L["layoutmodedesc"],
-            get = function() return BananaBar2:Get_layoutmode() end,
-            set = function(info,v) BananaBar2:Set_layoutmode(v) end,
-            order = 5,
-        },
-        
     }
 }
 
@@ -1210,6 +1222,15 @@ function BananaBar2:Get_layoutmode()
     return self.layoutmode;
 end
 
+function BananaBar2:Set_autosetcombat(value) 
+    self.db.profile.autosetcombat = value;
+end
+
+function BananaBar2:Get_autosetcombat() 
+    return self.db.profile.autosetcombat == true;    
+end
+
+
 function BananaBar2:EscapePressed()
 	BananaBarEscapeHookFrame:Hide();
 	BananaBar2:Set_layoutmode(false) 
@@ -1555,7 +1576,9 @@ function BananaBar2:BananaUpdate()
         end
     end
 
-    self:AutoSetSymbols(true);
+    if self:Get_autosetcombat() then
+        self:AutoSetSymbols(true);
+    end
     
     if self.SetSymbolsOnNextUpdate then
     	self.SetSymbolsOnNextUpdate = false;
@@ -1567,11 +1590,6 @@ function BananaBar2:BananaUpdate()
     	self:AutoSetSymbols(false);
     end
     local t2=GetTime();
-    
-    
-	
-	
-
 end
 
 function BananaBar2:SetSymbolsKeyPressed()
