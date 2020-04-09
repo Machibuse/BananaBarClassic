@@ -584,44 +584,6 @@ function BananaBar2Button:UpdateAllButtonFrame(show)
     end
 end
 
-function BananaBar2Button:SetOrRemoveSymbol()
-    if not UnitExists("target") then
-        Banana_TargetRaidSymbol(index);
-        if not UnitExists("target") then
-            self.Addon:Debug("keine target ausgewählt und kein mob gefunden um target zu entfernen");
-            return;
-        end
-    end
-    
-    local oldindex = (Banana_GetSymbol("TARGET") or 0);
-	if oldindex == index then
-		Banana_SetSymbol("TARGET", 0)
-		Banana_PlayRemove1();
-	else
-		Banana_SetSymbol("TARGET", index)
-	end
-	Banana_UpdateStatus();
-end
-
-function BananaBar2Button:TargetSymbol()
-  for i = 1, 40, 1 do
-    if Banana_TargetRaidSymbolUnit("raid"..i,index) then
-        return;
-    end
-  end;
-  for i = 1, 4, 1 do
-    if Banana_TargetRaidSymbolUnit("party"..i,index) then
-        return;
-    end
-  end;
-  if Banana_TargetRaidSymbolUnit("player",index) then
-      return;
-  end
-  Banana_PlayError();
-  Banana_Print("Nothing to target");
-  Banana_UpdateStatus();
-end
-
 function BananaBar2Button:SetMobName(name)
     if name then
         self.MobName:SetText(name);

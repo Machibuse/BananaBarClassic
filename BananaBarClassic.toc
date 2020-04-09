@@ -18,6 +18,5 @@ BananaBarConstants.lua
 BananaBar2Locale-deDE.lua
 BananaBar2Button.lua
 BananaBar2AssistButton.lua
-BananaBar2TargetScanner.lua
 BananaBar2.lua
 Bindings.xml

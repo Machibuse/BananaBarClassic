@@ -1,4 +1,4 @@
-BananaBar2 = LibStub("AceAddon-3.0"):NewAddon("BananaBar2", "AceConsole-3.0", "AceHook-3.0","AceEvent-3.0","AceBucket-3.0","AceTimer-3.0");
+wBananaBar2 = LibStub("AceAddon-3.0"):NewAddon("BananaBar2", "AceConsole-3.0", "AceHook-3.0","AceEvent-3.0","AceBucket-3.0","AceTimer-3.0");
 
 local L = LibStub("AceLocale-3.0"):GetLocale("BananaBar2")
 
@@ -7,7 +7,8 @@ local L = LibStub("AceLocale-3.0"):GetLocale("BananaBar2")
 
 local BananaBar2AssistButton = LibStub("BananaBar2AssistButton-2.0");
 local BananaBar2Button = LibStub("BananaBar2Button-2.0");
-local BananaBar2Scanner = LibStub("BananaBar2Scanner-2.0");
+
+local SecureActionQueue = LibStub("SecureActionQueue-2.0")
 
 
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
@@ -816,6 +817,11 @@ LibStub("AceConfig-3.0"):RegisterOptionsTable("BananaBar2", options, { "bb2", "b
 --- OnInitialize
 ------------------------------------------
 function BananaBar2:OnInitialize()
+    self.TARGETS = { };
+    self.TARGETMARKS = { };
+    self.IGNOREMARKS = { };
+    self.IGNOREMOBS = { };
+
     self.db = LibStub("AceDB-3.0"):New("BananaBarClassicData", defaults, true)
 
     self.BananaUpdateTimer = self:ScheduleRepeatingTimer("BananaUpdate", self.db.profile.updaterate, self);
@@ -848,8 +854,6 @@ function BananaBar2:OnInitialize()
     for i = 1,40,1 do
         self.AssistButtons[i] = BananaBar2AssistButton:new(BananaBar2,"Assist"..i);
         self.AssistButtons[i]:SetButtonSymbol(4);
-        --self.AssistButtons[i]:SetCount(i);
-        --self.AssistButtons[i]:SetCount(i);
         if i > 1 then
         	if mod(i,5) == 1 then
 	            self.AssistButtons[i]:Dock(BANANA_DOCK_BOTTOM,self.AssistButtons[i-5]);
@@ -915,19 +919,18 @@ function BananaBar2:BananaSetCursor(texture)
     self.mouseOverlayFrameTex:SetTexture(texture)
 end
 
-
-
-
 function BananaBar2:PLAYER_REGEN_DISABLED(event)
     self:Print("Enter Combat")
-    for i,j in pairs(BananaBar2Scanner.TARGETMARKS) do
-        if (j == nil) then
-            self:Print(i.." -> NIL")
-        else
-            self:Print(i.." -> "..j)
+    self.IGNOREMARKS = {};
+    self.IGNOREMOBS = {};
+    for mark,mobguid in pairs(BananaBar2.TARGETMARKS) do
+        if mobguid ~= nil and mark < 9 then
+            self.IGNOREMARKS[mark] = 1;
+            self.IGNOREMOBS[mobguid] = 1;
         end
     end
-
+    self:Debug(self.IGNOREMARKS)
+    self:Debug(self.IGNOREMOBS)
 end
 
 function BananaBar2:PLAYER_REGEN_ENABLED(event)
@@ -1272,10 +1275,8 @@ function BananaBar2:ExecuteAction(button, clicktype)
     end;
     if action == "action_config" then
         self:Execute_Config();
---    elseif action == "action_target" then
---        BananaBar2Scanner:TargetSymbol(button.ButtonId)
     elseif action == "action_setsymbol" then
-        BananaBar2Scanner:SetSymbol(button.ButtonId)
+        BananaBar2:SetSymbol(button.ButtonId)
     else
         self:Debug("Unknown action".." "..action);
     end
@@ -1420,8 +1421,8 @@ function BananaBar2:UpdateTooltip()
         GameTooltip:SetOwner(self.TooltipButton.frame, "ANCHOR_TOPRIGHT");
         GameTooltip:ClearLines();
 
-        if BananaBar2Scanner.TARGETMARKS[id] then
-            local t = BananaBar2Scanner.TARGETS[BananaBar2Scanner.TARGETMARKS[id]];
+        if self.TARGETMARKS[id] then
+            local t = self.TARGETS[self.TARGETMARKS[id]];
 		 	GameTooltip:AddLine(UnitName(t.info_unit),0.7,0.7,0.7)
             local i;
             for i in pairs(t.from) do
@@ -1498,11 +1499,11 @@ function BananaBar2:BananaUpdate()
     BananaBar2:UpdateTooltip();
     
     --debugprofilestart()
-    BananaBar2Scanner:Scan();
+    BananaBar2:Scan();
 
     targets = {}
-    for guid,info in pairs(BananaBar2Scanner.TARGETS) do 
-        if tablelength(info.from) > 0 and info.symbol == nil and UnitCanAttack("PLAYER",info.info_unit) then
+    for guid,info in pairs(self.TARGETS) do 
+        if BananaBar2:TableCount(info.from) > 0 and info.symbol == nil and UnitCanAttack("PLAYER",info.info_unit) then
             table.insert(targets, guid) 
         end
     end
@@ -1511,22 +1512,22 @@ function BananaBar2:BananaUpdate()
     table.sort(targets, 
       function(c1,c2) 
         self:Print(c1)
-        if tablelength(BananaBar2Scanner.TARGETS[c1].from) == tablelength(BananaBar2Scanner.TARGETS[c2].from) then
+        if BananaBar2:FromCount(self.TARGETS[c1].from) == BananaBar2:FromCount(self.TARGETS[c2].from) then
           return c1 > c2;
         end
-        return tablelength(BananaBar2Scanner.TARGETS[c1].from) > tablelength(BananaBar2Scanner.TARGETS[c2].from) 
+        return BananaBar2:FromCount(self.TARGETS[c1].from) > BananaBar2:FromCount(self.TARGETS[c2].from) 
       end)
     local index = BANANA_RAIDSYMBOL_BUTTON_COUNT+1;
     for _, guid in ipairs(targets) do 
-        BananaBar2Scanner.TARGETMARKS[index] = guid;
+        self.TARGETMARKS[index] = guid;
         index = index + 1;
     end    
 
 
     for but=1,BANANA_MAX_BUTTONS,1 do
-        if BananaBar2Scanner.TARGETMARKS[but] then
-            local t = BananaBar2Scanner.TARGETS[BananaBar2Scanner.TARGETMARKS[but]];
-            self.Buttons[but]:SetCount(tablelength(t.from));
+        if self.TARGETMARKS[but] then
+            local t = self.TARGETS[self.TARGETMARKS[but]];
+            self.Buttons[but]:SetCount(BananaBar2:FromCount(t.from));
             self.Buttons[but]:SetDead(t.info_dead);
             self.Buttons[but]:SetHuntersmark(t.has_huntersmark);
             self.Buttons[but].HealthBar:SetMinMaxValues(0,t.info_healthmax);
@@ -1554,14 +1555,16 @@ function BananaBar2:BananaUpdate()
         end
     end
 
-    self:AutoSetSymbols("sscombat");
+    self:AutoSetSymbols(true);
     
     if self.SetSymbolsOnNextUpdate then
     	self.SetSymbolsOnNextUpdate = false;
-        if not BananaBar2Scanner:CanSetSymbols() then
+        if not BananaBar2:CanSetSymbols() then
+            self:Print("Autoset symbols fail, cant set symbols");
 	        return;
         end;
-    	self:AutoSetSymbols("sshotkey");
+        self:Print("Autoset symbols start");
+    	self:AutoSetSymbols(false);
     end
     local t2=GetTime();
     
@@ -1572,50 +1575,61 @@ function BananaBar2:BananaUpdate()
 end
 
 function BananaBar2:SetSymbolsKeyPressed()
+    self:Print("Autoset symbols...");
 	self.SetSymbolsOnNextUpdate = true;			
 end
 
-function BananaBar2:AutoSetSymbols(settype)
-    if not BananaBar2Scanner:CanSetSymbols() then
+function BananaBar2:AutoSetSymbols(combatOnly)
+    if not BananaBar2:CanSetSymbols() then
 	    return;
     end;
-    --self:Print("AutoSetSymbols");
-    targets = {}    
+    targets = {}
+    --self:Dump("self.IGNOREMOBS",self.IGNOREMOBS)    
     local loop = 0
-    for guid,info in pairs(BananaBar2Scanner.TARGETS) do      
-        loop = loop +1;   
-        if tablelength(info.from) > 0 and info.symbol == nil and UnitCanAttack("PLAYER",info.info_unit) and info.symbol == nil then            
-            if UnitAffectingCombat(info.info_unit) then                
-                self:Print(loop..": "..guid)
-                for j=1,8,1 do                
-                    if BananaBar2Scanner.TARGETMARKS[j] == nil then
-                        self:Print("Setting Symbol "..L[("symbolname"..j)].." on "..info.info_name..UnitGUID(info.info_unit));
-                        BananaBar2:PlaySet();
-                        SetRaidTarget(info.info_unit,j);          
-                        info.symbol = j;
-                        BananaBar2Scanner.TARGETMARKS[j] = UnitGUID(info.info_unit);
-                        break;
-                    end
-                end            
-            end        
-        end    
+    for guid,info in pairs(self.TARGETS) do    
+        if self.IGNOREMOBS[guid] == 1 then
+            -- skip
+        else
+            loop = loop +1;   
+            if BananaBar2:FromCount(info.from) > 0 and info.symbol == nil and UnitCanAttack("PLAYER",info.info_unit) and info.symbol == nil then            
+                if UnitAffectingCombat(info.info_unit) or combatOnly == false then                
+                    self:Print(loop..": "..guid)
+                    for j=1,8,1 do                
+                        if self.IGNOREMARKS[j] == 1 then
+                            -- skip
+                        else
+                            if self.TARGETMARKS[j] == nil then
+                                self:Print("Setting Symbol "..L[("symbolname"..j)].." on "..info.info_name..UnitGUID(info.info_unit));
+                                BananaBar2:PlaySet();
+                                SetRaidTarget(info.info_unit,j);          
+                                self.IGNOREMARKS[j] = 1;
+                                self.IGNOREMOBS[guid] = 1;
+                                self.TARGETMARKS[j] = UnitGUID(info.info_unit);
+                                info.symbol = j;
+                                break;
+                            end
+                        end
+                    end            
+                end        
+            end    
+        end
     end
 
---    if BananaBar2Scanner.TSRA.ut_count > 0 then
---        for i=0,BananaBar2Scanner.TSRA.ut_count-1,1 do
---            local uid = BananaBar2Scanner.TSRA[BananaBar2Scanner.UT_FIRST+i].info_unit;
+--    if self.TSRA.ut_count > 0 then
+--        for i=0,self.TSRA.ut_count-1,1 do
+--            local uid = self.TSRA[self.UT_FIRST+i].info_unit;
 --            if settype ~= "sscombat" or UnitAffectingCombat(uid) then
 --                 local name = UnitName(uid);
 --                if self.db.profile.mobsettings[GetLocale()].byname[name] then
 --                    if self.db.profile.mobsettings[GetLocale()].byname[name][settype] then
 --                        local search = true;
 --                        for j=1,8,1 do
---                            if search and BananaBar2Scanner.TSRB[j].used==0 and BananaBar2Scanner.TSRA[j].used==0 then
+--                            if search and self.TSRB[j].used==0 and self.TSRA[j].used==0 then
 --                                if self.db.profile.mobsettings[GetLocale()].byname[name][j] then
   --                                	BananaBar2:PlaySet();
 --                                    self:Print("Setting Symbol "..L[("symbolname"..j)].." on "..name);
 --                                    SetRaidTarget(uid,j);          
---                                    BananaBar2Scanner.TSRA[j].used = 1;
+--                                    self.TSRA[j].used = 1;
 --                                    search = false;
 --                                end
 --                            end
@@ -1904,10 +1918,12 @@ function BananaBar2:BananaCursor()
 			if BananaBar2.DragMouseButton == "LeftButton" and dist > 10 then
 				BananaBar2.DragPreparing = false
 			elseif BananaBar2.DragMouseButton == "RightButton" and dist > 20 then
-				BananaBar2.Dragging = false;
                 BananaBar2.CancelTimer(self.BananaCursorTimer)
+				BananaBar2.Dragging = false;
+                self:Print("Starting Layoutmode")
 				self:BananaSetCursor(nil);
-				self:Set_layoutmode(true)
+                self:Set_layoutmode(true)
+                return;
 			else
 				return;
 			end
@@ -1942,8 +1958,11 @@ function BananaBar2:BananaCursor()
 				self:BananaSetCursor(BANANA_RAID_CURSORS[idx])
 			else
 				self:BananaSetCursor(nil)
-			end
-		end
+            end
+        else
+            self:BananaSetCursor(nil)
+        end
+        
 	end
 end
 
@@ -1953,7 +1972,7 @@ function BananaBar2:SearchDown()
 	end
 	self:Print("Changing mouse cursor when over marked mob now.");
 	self.ShowMouseSymbol = true;
-    self.BananaCursorTimer = self:ScheduleRepeatingTimer("BananaCursor", 1, self);
+    self.BananaCursorTimer = self:ScheduleRepeatingTimer("BananaCursor", 0.1 , self);
 end
 
 function BananaBar2:SearchUp()
@@ -1973,8 +1992,8 @@ function BananaBar2:MouseOverTargeting()
 			return;
 		end
 
-		if not BananaBar2Scanner:TestScanThisTarget("MOUSEOVER") then
-			--BananaBar2:Print("not BananaBar2Scanner:TestScanThisTarget");
+		if not BananaBar2:TestScanThisTarget("MOUSEOVER") then
+			--BananaBar2:Print("not BananaBar2:TestScanThisTarget");
 			return;
 		end
 		
@@ -2086,7 +2105,7 @@ function BananaBar2:DragStop(dragStopButton,mouseButton)
 				BananaBar2:DragButtonOnUnit(self.DragStartButton,mouseButton)		
 				
 			else	
-				local unit = BananaBar2Scanner:GetUnitBySymbol(self.DragStartButton.ButtonId)
+				local unit = BananaBar2:GetUnitBySymbol(self.DragStartButton.ButtonId)
 				if unit then
                     SetRaidTarget(unit,0);
                     PlayRemove();
@@ -2096,7 +2115,7 @@ function BananaBar2:DragStop(dragStopButton,mouseButton)
 			--self:Debug("no drag")	
 		else
 				--self:Debug("drag from "..self.DragStartButton.ButtonId.." to "..dragStopButton.ButtonId)	
-				BananaBar2Scanner:ChangeSymbol(self.DragStartButton.ButtonId, dragStopButton.ButtonId)
+				BananaBar2:ChangeSymbol(self.DragStartButton.ButtonId, dragStopButton.ButtonId)
 		end
 	end
 end
@@ -2109,8 +2128,8 @@ function BananaBar2:DragButtonOnUnit(button,mouseButton)
     else
         if GetRaidTargetIndex("MOUSEOVER") then
             local old = GetRaidTargetIndex("MOUSEOVER")
-            if BananaBar2Scanner.TARGETMARKS[old] then
-                BananaBar2Scanner:ChangeSymbol(old,button.ButtonId)
+            if self.TARGETMARKS[old] then
+                BananaBar2:ChangeSymbol(old,button.ButtonId)
             else
                 SetRaidTarget("MOUSEOVER", button.ButtonId);
                 BananaBar2:PlaySet();
@@ -2124,7 +2143,10 @@ function BananaBar2:DragButtonOnUnit(button,mouseButton)
 end
 
 function BananaBar2:Debug(value)
-    BananaBar2:Print(dump(value))
+    --BananaBar2:Print(dump(value))
+end
+function BananaBar2:Dump(name, value)
+    --BananaBar2:Print(name..": "..dump(value))
 end
 
 function dump(o)
@@ -2150,12 +2172,368 @@ function BananaBar2:IsActive()
 end
 
 
-
---BananaBar2.dewdrop:FeedAceOptionsTable(AceLibrary("AceDB-2.0"):GetAceOptionsDataTable(BananaBar2))
-function tablelength(T)
+function BananaBar2:TableCount(list)
     local count = 0
-    for a in pairs(T) do 
+    for key in pairs(list) do 
         count = count + 1 
     end
     return count
+end
+
+function BananaBar2:FromCount(list)
+    local count = 0
+    for key in pairs(list) do 
+        if key ~= "MOUSEOVER" then
+            count = count + 1 
+        end
+    end
+    return count
+end
+
+function BananaBar2:AssistScan(i,target,unit,raidIndex)
+	
+	local tooltipInfo1 = nil;
+	local tooltipInfo2 = nil;
+	BananaBar2.AssistButtons[i].AssistUnit = unit;
+	BananaBar2.AssistButtons[i].AssistTarget = target;
+	local MT = nil;
+
+	if unit then
+		if BananaBar2.AssistButtons[i].frame:GetAttribute("unit") ~= target then
+			--BananaBar2:Print("set b"..i.."="..(target or "<nil>").." old="..(BananaBar2.AssistButtons[i].frame:GetAttribute("unit") or "<nil>"));
+			SecureActionQueue:FrameSetAttribute(BananaBar2.AssistButtons[i].frame,"unit", target);
+			SecureActionQueue:FrameSetAttribute(BananaBar2.AssistButtons[i].frame,"type2", "menu");
+			SecureActionQueue:FrameSetAttribute(BananaBar2.AssistButtons[i].frame,"*type1", "target")
+			BananaBar2.AssistButtons[i].frame.menu = BananaShowTargetDropDown;
+		end
+	else
+		if BananaBar2.AssistButtons[i].frame:GetAttribute("unit") ~= "" then
+			--BananaBar2:Print("clr b"..i.."="..(target or "<nil>").." old="..(BananaBar2.AssistButtons[i].frame:GetAttribute("unit") or "<nil>"));
+			SecureActionQueue:FrameSetAttribute(BananaBar2.AssistButtons[i].frame,"unit", nil);
+			SecureActionQueue:FrameSetAttribute(BananaBar2.AssistButtons[i].frame,"type2", nil);
+			SecureActionQueue:FrameSetAttribute(BananaBar2.AssistButtons[i].frame,"*type1", nil)
+			BananaBar2.AssistButtons[i].frame.menu = nil;
+		end
+	end    	
+
+	if UnitExists(unit) then
+		BananaBar2.AssistButtons[i].AssistUnit = unit;
+		BananaBar2.AssistButtons[i].AssistTarget = target;
+
+		local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(raidIndex);
+
+		if not online then
+			BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_OFFLINE);
+			tooltipInfo1 = "Offline";
+			tooltipInfo2 = nil;
+		elseif UnitIsGhost(unit) then
+			BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_GHOST);
+			MT = "";
+			tooltipInfo1 = "Ghost released";
+			tooltipInfo2 = nil;
+		elseif isDead then
+			BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_DEAD);
+			MT = "";
+			tooltipInfo1 = "Dead";
+			tooltipInfo2 = nil;
+		elseif CT_RA_Stats and CT_RA_Stats[name] and CT_RA_Stats[name]["AFK"] then
+			BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_AWAY);		
+			MT = "";
+			tooltipInfo1 = "<AFK>";
+			tooltipInfo2 = nil;
+		else
+			if UnitExists(target) then
+				if UnitIsDead(target) then
+					BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_X);
+					MT = "";
+					tooltipInfo1 = "has selected a dead target";
+					tooltipInfo2 = UnitName(target);
+				elseif UnitCanAttack(unit,target) then
+					tooltipInfo1 = "has selected an enemy target";
+					tooltipInfo2 = UnitName(target);
+					local rti = GetRaidTargetIndex(target);
+					if rti then
+						BananaBar2.AssistButtons[i]:SetButtonSymbol(rti);
+					else
+						BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_ENEMY);
+					end
+				else
+					tooltipInfo1 = "has selected an friendly target";
+					tooltipInfo2 = UnitName(target);
+
+					if fileName == "PRIEST" then
+						BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_PRIEST);
+						MT = BananaBar2:GetMt(target);
+					elseif fileName == "PALADIN" then
+						BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_PALADIN);
+						MT = BananaBar2:GetMt(target);
+					elseif fileName == "SHAMAN" then
+						BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_SHAMAN);
+						MT = BananaBar2:GetMt(target);
+					elseif fileName == "DRUID" then
+						BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_DRUID);
+						MT = BananaBar2:GetMt(target);
+					else
+						local rti = GetRaidTargetIndex(target);
+						if rti then
+							BananaBar2.AssistButtons[i]:SetButtonSymbol(rti);
+						else
+							BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_FRIEND);
+						end
+					end												
+				end;
+			else
+				BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_X);
+				tooltipInfo1 = "has nothing selected";
+				tooltipInfo2 = nil;
+			end
+		end
+	else
+		BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_NULL);
+		tooltipInfo1 = nil;
+		tooltipInfo2 = nil;
+	end
+    BananaBar2.AssistButtons[i]:SetButtonName2("") -- MT ehemals
+	BananaBar2.AssistButtons[i].TooltipInfo1 = tooltipInfo1;
+	BananaBar2.AssistButtons[i].TooltipInfo2 = tooltipInfo2;
+end
+
+
+local gruppen =
+{
+	[1] ={count=0},
+	[2] ={count=0},
+	[3] ={count=0},
+	[4] ={count=0},
+	[5] ={count=0},
+	[6] ={count=0},
+	[7] ={count=0},
+	[8] ={count=0},
+}
+
+
+function BananaBar2:AssistScanning()
+	gruppen =
+	{
+		[1] ={count=0},
+		[2] ={count=0},
+		[3] ={count=0},
+		[4] ={count=0},
+		[5] ={count=0},
+		[6] ={count=0},
+		[7] ={count=0},
+		[8] ={count=0},
+	}
+	for i=1,40,1 do
+		local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i);
+		gruppen[subgroup][gruppen[subgroup].count] = i;
+		gruppen[subgroup].count = gruppen[subgroup].count+1;
+	end    
+	for i=1,8,1 do
+		if gruppen[i].count < 5 then
+			for j=gruppen[i].count,4,1 do
+				gruppen[i][j] = 0;
+			end    
+		end
+	end    
+	for i=1,8,1 do
+		for j=0,4,1 do
+			self:AssistScan(i*5+j-4,"RAIDTARGET"..gruppen[i][j],"RAID"..gruppen[i][j],gruppen[i][j]); 
+		end    
+	end    
+	
+end
+
+function BananaBar2:GetUnitsToScan()
+    local units = {}
+    if UnitInRaid("player") then
+        for unitNumber=1,40,1 do
+            units["RAID"..unitNumber] = "";
+            units["RAID"..unitNumber.."TARGET"] = "RAID"..unitNumber;
+            units["RAIDPET"..unitNumber] = "";
+            units["RAIDPET"..unitNumber.."TARGET"] = "RAIDPET"..unitNumber;
+        end    
+    else
+        units["PLAYER"] = "";
+        units["PLAYERTARGET"] = "PLAYER";
+        units["PET"] = "";
+        units["PETTARGET"] = "PET";
+
+        if UnitInParty("player") then
+            for unitNumber=1,4,1 do
+                units["PARTY"..unitNumber] = "";
+                units["PARTY"..unitNumber.."TARGET"] = "PARTY"..unitNumber;
+                units["PARTYPET"..unitNumber] = "";
+                units["PARTYPET"..unitNumber.."TARGET"] = "PARTYPET"..unitNumber;
+            end    
+        end
+    end
+    units["MOUSEOVER"] = "MOUSEOVER";
+    return units;
+end
+
+function BananaBar2:Scan()
+
+
+    self:ResetScanBlock()
+
+    self:AssistScanning();
+
+    local unitsToScan = self:GetUnitsToScan();
+
+    for unit,unitparent in pairs(unitsToScan) do
+        self:ScanUnit(unit,unitparent); 
+    end
+end
+
+function BananaBar2:ResetScanBlock(block)
+    self.TARGETS = { };
+    self.TARGETMARKS = { };
+end
+
+function BananaBar2:ScanUnit(unit,source)
+    
+    if source == "" then
+        source = nil;
+    end
+
+    if UnitExists(unit) then
+        --BananaBar2:Print("ScanUnit "..unit);    
+        local rti = GetRaidTargetIndex(unit)
+        
+        self:AddTargetToList(rti,unit,source);
+    end
+end
+
+
+function BananaBar2:AddTargetToList(rti,unit,source)
+    local guid = UnitGUID(unit)
+    
+    if rti then
+        if self.TARGETMARKS[rti] == nil then
+            self.TARGETMARKS[rti] = guid
+            self.IGNOREMARKS[rti] = 1;
+            self.IGNOREMOBS[guid] = 1;
+        end
+    end
+
+    if self.TARGETS[guid] == nil then
+        self.TARGETS[guid] = { }
+        self.TARGETS[guid].from = {}
+        self.TARGETS[guid].symbol = rti;
+        self.TARGETS[guid].info_unit = unit;
+        self.TARGETS[guid].info_name = UnitName(unit);
+        self.TARGETS[guid].info_dead = UnitIsDead(unit);
+        self.TARGETS[guid].info_health = UnitHealth(unit);
+        self.TARGETS[guid].info_healthmax = UnitHealthMax(unit);
+        self.TARGETS[guid].has_huntersmark = self:UnitHasHuntersMark(unit)
+    end
+    
+    if source then
+        self.TARGETS[guid].from[source] = 1;
+    end
+end
+
+function BananaBar2:UnitHasHuntersMark(unit)
+    local iIterator = 1
+    local debuffName, debuffTexture, debuffApplications, debuffDispelType = UnitDebuff(unit, iIterator);
+    while (debuffTexture) do
+
+        if debuffTexture==132212 then
+            return true
+        end
+        iIterator = iIterator + 1
+    	debuffName, debuffTexture, debuffApplications, debuffDispelType = UnitDebuff(unit, iIterator);
+    end
+    return false
+end
+
+function BananaBar2:TestScanThisTarget(unit)
+    if UnitCanAttack("player", unit)  and (not UnitIsCivilian(unit)) then
+        return true;
+    else
+        return false;
+    end
+    --UnitExists
+    --UnitIsDead
+    --UnitIsCorpse
+end
+
+function BananaBar2:CanSetSymbols()
+    if UnitInRaid("player") then
+        if UnitIsGroupAssistant("player") or UnitIsGroupLeader("player") then
+            return true;
+        end
+    elseif UnitInParty("player") then
+        return true;
+    else
+        return true;
+    end
+    return false;
+end
+
+
+function BananaBar2:ChangeSymbol(indexFrom, indexTo)
+	local unit1 = BananaBar2:GetUnitBySymbol(indexFrom);
+	local unit2 = BananaBar2:GetUnitBySymbol(indexTo);
+	if unit1 then
+		if unit2 then
+			--swap
+			SetRaidTarget(unit1,indexTo);
+            SetRaidTarget(unit2,indexFrom);
+            BananaBar2:PlaySet();
+            BananaBar2:PlayRemove();
+		else
+			--move
+			SetRaidTarget(unit1,indexTo);
+            BananaBar2:PlaySet();
+            BananaBar2:PlayRemove();
+		end
+	else
+		if unit2 then
+			--move
+			SetRaidTarget(unit2,indexFrom);
+            BananaBar2:PlaySet();
+            BananaBar2:PlayRemove();
+		else
+			BananaBar2:PlayError();
+		end
+	end
+end
+
+function BananaBar2:GetUnitBySymbol(index)
+    if self.TARGETMARKS[index] then
+        return self.TARGETS[self.TARGETMARKS[index]].info_unit
+    end
+    return nil;
+end
+
+function BananaBar2:SetSymbol(index)
+    if GetRaidTargetIndex("target") == index then
+        BananaBar2:PlayRemove();
+        SetRaidTarget("target", 0);
+    else
+        SetRaidTarget("target", index);
+        BananaBar2:PlaySet();
+    end
+end
+
+function BananaBar2:SetOrRemoveSymbol()
+    if not UnitExists("target") then
+        Banana_TargetRaidSymbol(index);
+        if not UnitExists("target") then
+            self.Addon:Debug("keine target ausgewählt und kein mob gefunden um target zu entfernen");
+            return;
+        end
+    end
+    
+    local oldindex = (Banana_GetSymbol("TARGET") or 0);
+	if oldindex == index then
+		SetRaidTarget("TARGET", 0)
+		Banana_PlayRemove1();
+	else
+        SetRaidTarget("TARGET", index)
+        BananaBar2:PlaySet();
+	end
+	Banana_UpdateStatus();
 end
