@@ -929,7 +929,7 @@ function BananaBar2:BananaSetCursor(texture)
 end
 
 function BananaBar2:PLAYER_REGEN_DISABLED(event)
-    self:Print("Enter Combat")
+    self:Debug("Enter Combat")
     self.IGNOREMARKS = {};
     self.IGNOREMOBS = {};
     for mark,mobguid in pairs(BananaBar2.TARGETMARKS) do
@@ -943,7 +943,7 @@ function BananaBar2:PLAYER_REGEN_DISABLED(event)
 end
 
 function BananaBar2:PLAYER_REGEN_ENABLED(event)
-    self:Print("Leave Combat")
+    self:Debug("Leave Combat")
 end
 
 
@@ -1529,7 +1529,6 @@ function BananaBar2:BananaUpdate()
     
     table.sort(targets, 
       function(c1,c2) 
-        self:Print(c1)
         if BananaBar2:FromCount(self.TARGETS[c1].from) == BananaBar2:FromCount(self.TARGETS[c2].from) then
           return c1 > c2;
         end
@@ -1608,7 +1607,6 @@ function BananaBar2:AutoSetSymbols(combatOnly)
             loop = loop +1;   
             if BananaBar2:FromCount(info.from) > 0 and info.symbol == nil and UnitCanAttack("PLAYER",info.info_unit) and info.symbol == nil then            
                 if UnitAffectingCombat(info.info_unit) or combatOnly == false then                
-                    self:Print(loop..": "..guid)
                     for j=1,8,1 do                
                         if self.IGNOREMARKS[j] == 1 then
                             -- skip
