@@ -2477,7 +2477,7 @@ function BananaBar2:UnitHasHuntersMark(unit)
     return false
 end
 
-function BananaBar2:CanSetSymbolOn(unit)
+function BananaBar2:IsAutoSymbolTarget(unit)
     if UnitCanAttack("player", unit)  and (not UnitIsCivilian(unit)) then
         return true;
     else
