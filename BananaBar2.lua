@@ -55,7 +55,8 @@ options = {
         },
 		reset = {
 			name = L["reset"],
-			desc = L["resetdesc"],
+            desc = L["resetdesc"],
+            hidden = true,
             width = "full",
 			type = "execute",
 			func = function()
@@ -79,6 +80,15 @@ options = {
             desc = L["autosetcombatdesc"],
             get = function() return BananaBar2:Get_autosetcombat() end,
             set = function(info,v) BananaBar2:Set_autosetcombat(v) end,
+            order = 5,
+        },
+        autosetcombat = {
+            type = 'toggle',
+            width = "full",
+            name = L["showdebugmessages"],
+            desc = L["showdebugmessagesdesc"],
+            get = function() return BananaBar2:Get_showdebugmessages() end,
+            set = function(info,v) BananaBar2:Set_showdebugmessages(v) end,
             order = 5,
         },
 
@@ -1227,6 +1237,15 @@ function BananaBar2:Get_autosetcombat()
     return self.db.profile.autosetcombat == true;    
 end
 
+function BananaBar2:Set_showdebugmessages(value) 
+    self.db.profile.showdebugmessages = value;
+end
+
+function BananaBar2:Get_showdebugmessages() 
+    return self.db.profile.showdebugmessages == true;    
+end
+
+
 
 function BananaBar2:EscapePressed()
 	BananaBarEscapeHookFrame:Hide();
@@ -2001,8 +2020,8 @@ function BananaBar2:MouseOverTargeting()
 			return;
 		end
 
-		if not BananaBar2:TestScanThisTarget("MOUSEOVER") then
-			--BananaBar2:Print("not BananaBar2:TestScanThisTarget");
+		if not BananaBar2:IsAutoSymbolTarget("MOUSEOVER") then
+			--BananaBar2:Print("not BananaBar2:CanSetSymbolOn");
 			return;
 		end
 		
@@ -2152,10 +2171,15 @@ function BananaBar2:DragButtonOnUnit(button,mouseButton)
 end
 
 function BananaBar2:Debug(value)
-    --BananaBar2:Print(dump(value))
+    if self:Get_showdebugmessages() then
+        BananaBar2:Print("[D] "..dump(value))
+    end
+    
 end
 function BananaBar2:Dump(name, value)
-    --BananaBar2:Print(name..": "..dump(value))
+    if Get_showdebugmessages() then
+        BananaBar2:Print("[D] "..name..": "..dump(value))
+    end
 end
 
 function dump(o)
@@ -2202,10 +2226,10 @@ end
 function BananaBar2:AssistScan(i,target,unit,raidIndex)
 	
 	local tooltipInfo1 = nil;
-	local tooltipInfo2 = nil;
-	BananaBar2.AssistButtons[i].AssistUnit = unit;
-	BananaBar2.AssistButtons[i].AssistTarget = target;
-	local MT = nil;
+    local tooltipInfo2 = nil;
+    
+	self.AssistButtons[i].AssistUnit = unit;
+	self.AssistButtons[i].AssistTarget = target;
 
 	if unit then
 		if BananaBar2.AssistButtons[i].frame:GetAttribute("unit") ~= target then
@@ -2213,7 +2237,7 @@ function BananaBar2:AssistScan(i,target,unit,raidIndex)
 			SecureActionQueue:FrameSetAttribute(BananaBar2.AssistButtons[i].frame,"unit", target);
 			SecureActionQueue:FrameSetAttribute(BananaBar2.AssistButtons[i].frame,"type2", "menu");
 			SecureActionQueue:FrameSetAttribute(BananaBar2.AssistButtons[i].frame,"*type1", "target")
-			BananaBar2.AssistButtons[i].frame.menu = BananaShowTargetDropDown;
+			--BananaBar2.AssistButtons[i].frame.menu = BananaShowTargetDropDown;
 		end
 	else
 		if BananaBar2.AssistButtons[i].frame:GetAttribute("unit") ~= "" then
@@ -2221,11 +2245,12 @@ function BananaBar2:AssistScan(i,target,unit,raidIndex)
 			SecureActionQueue:FrameSetAttribute(BananaBar2.AssistButtons[i].frame,"unit", nil);
 			SecureActionQueue:FrameSetAttribute(BananaBar2.AssistButtons[i].frame,"type2", nil);
 			SecureActionQueue:FrameSetAttribute(BananaBar2.AssistButtons[i].frame,"*type1", nil)
-			BananaBar2.AssistButtons[i].frame.menu = nil;
+			--BananaBar2.AssistButtons[i].frame.menu = nil;
 		end
 	end    	
 
-	if UnitExists(unit) then
+    if UnitExists(unit) then
+        --self:Debug(i.." "..unit.." "..target.." "..(raidIndex or "nil"))
 		BananaBar2.AssistButtons[i].AssistUnit = unit;
 		BananaBar2.AssistButtons[i].AssistTarget = target;
 
@@ -2237,27 +2262,25 @@ function BananaBar2:AssistScan(i,target,unit,raidIndex)
 			tooltipInfo2 = nil;
 		elseif UnitIsGhost(unit) then
 			BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_GHOST);
-			MT = "";
 			tooltipInfo1 = "Ghost released";
 			tooltipInfo2 = nil;
 		elseif isDead then
 			BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_DEAD);
-			MT = "";
 			tooltipInfo1 = "Dead";
 			tooltipInfo2 = nil;
-		elseif CT_RA_Stats and CT_RA_Stats[name] and CT_RA_Stats[name]["AFK"] then
+		elseif UnitIsAFK(unit) then
 			BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_AWAY);		
-			MT = "";
 			tooltipInfo1 = "<AFK>";
 			tooltipInfo2 = nil;
 		else
 			if UnitExists(target) then
-				if UnitIsDead(target) then
+                if UnitIsDead(target) then
+                    --self:Debug("UnitIsDead")
 					BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_X);
-					MT = "";
 					tooltipInfo1 = "has selected a dead target";
 					tooltipInfo2 = UnitName(target);
 				elseif UnitCanAttack(unit,target) then
+                    --self:Debug("UnitCanAttack")
 					tooltipInfo1 = "has selected an enemy target";
 					tooltipInfo2 = UnitName(target);
 					local rti = GetRaidTargetIndex(target);
@@ -2272,16 +2295,12 @@ function BananaBar2:AssistScan(i,target,unit,raidIndex)
 
 					if fileName == "PRIEST" then
 						BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_PRIEST);
-						MT = BananaBar2:GetMt(target);
 					elseif fileName == "PALADIN" then
 						BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_PALADIN);
-						MT = BananaBar2:GetMt(target);
 					elseif fileName == "SHAMAN" then
 						BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_SHAMAN);
-						MT = BananaBar2:GetMt(target);
 					elseif fileName == "DRUID" then
 						BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_DRUID);
-						MT = BananaBar2:GetMt(target);
 					else
 						local rti = GetRaidTargetIndex(target);
 						if rti then
@@ -2292,6 +2311,7 @@ function BananaBar2:AssistScan(i,target,unit,raidIndex)
 					end												
 				end;
 			else
+                --self:Debug("NotExists")
 				BananaBar2.AssistButtons[i]:SetButtonTexture(BANANA_TEXTURE_X);
 				tooltipInfo1 = "has nothing selected";
 				tooltipInfo2 = nil;
@@ -2347,7 +2367,7 @@ function BananaBar2:AssistScanning()
 	end    
 	for i=1,8,1 do
 		for j=0,4,1 do
-			self:AssistScan(i*5+j-4,"RAIDTARGET"..gruppen[i][j],"RAID"..gruppen[i][j],gruppen[i][j]); 
+			self:AssistScan(i*5+j-4, "RAID"..gruppen[i][j].."TARGET", "RAID"..gruppen[i][j], gruppen[i][j]); 
 		end    
 	end    
 	
@@ -2457,7 +2477,7 @@ function BananaBar2:UnitHasHuntersMark(unit)
     return false
 end
 
-function BananaBar2:TestScanThisTarget(unit)
+function BananaBar2:CanSetSymbolOn(unit)
     if UnitCanAttack("player", unit)  and (not UnitIsCivilian(unit)) then
         return true;
     else

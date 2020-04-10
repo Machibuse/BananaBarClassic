@@ -1,5 +1,5 @@
 local AceLocale = LibStub:GetLibrary("AceLocale-3.0");
-local L = AceLocale:NewLocale("BananaBar2", "enGB", false);
+local L = AceLocale:NewLocale("BananaBar2", "enGB", true);
 
 if not L then return end
 
@@ -13,12 +13,16 @@ if not L then return end
 
 
 -- Short name of the Addon, should normally not be translated
-L.addonname                       = "BananaBar2"; 
+L.addonname                       = "BananaBar"; 
 
 -- Long name of the Addon, the word BananaBar2 should normally not be translated, 
 -- the appendix "Raid Symbols" can be translated
-L.addonnamelong                   = "BananaBar2 Raid Symbols";
+L.addonnamelong                   = "BananaBar Raid Symbols";
 
+
+L.showdebugmessages = "Show debug messages";
+
+L.showdebugmessagesdesc = "Show debug messages, usefur for development only";
 
 -- Texts in the WOW Key binding Dialog
 -- Text should not exceed one line to be correctly displayed in the dialog
