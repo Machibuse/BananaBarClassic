@@ -1043,7 +1043,7 @@ function BananaBar2:COMBAT_LOG_EVENT_UNFILTERED(event, ...)
     end
 
 
-    if damageEventTypes[eventType]  and self.AuraInfo[destGUID] and self.AuraInfo[destGUID].BreakTime ~= nil then 
+    if damageEventTypes[eventType]  and self.AuraInfo[destGUID] and self.AuraInfo[destGUID].BreakTime ~= nil and self.AuraInfo[destGUID].BreakerGUID == nil then 
         if self.AuraInfo[destGUID] then
             self.AuraInfo[destGUID].BreakerGUID = sourceGUID;
             self.AuraInfo[destGUID].BreakReason = (eventType == 'SWING_DAMAGE' and 'Melee Damage' or spellName)
