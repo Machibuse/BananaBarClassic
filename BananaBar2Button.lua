@@ -51,6 +51,20 @@ function BananaBar2Button:init(addon,name)
     self.NormalTexture = getglobal(self.FrameName.."NormalTexture");
     self.PushedTexture = getglobal(self.FrameName.."PushedTexture");   
     self.HealthBar = getglobal(self.FrameName.."HealthBar");   
+    self.SubIcon =  getglobal(self.FrameName.."SubIcon");  
+    self.Cooldown =  getglobal(self.FrameName.."Cooldown");  
+    self.Cooldown:SetSwipeTexture("Interface\\AddOns\\BananaBarClassic\\Images\\Swite_Circle.blp",0,0,0,0);
+    self.Cooldown:SetUseCircularEdge(true)
+    --self.Cooldown:SetAlpha(0.1);
+--    <Size x="36" y="36"/>
+--    <Anchors>
+--        <Anchor point="CENTER" relativePoint="LEFT">
+--            <Offset>
+--                <AbsDimension x="0" y="-1"/>
+--            </Offset>
+--        </Anchor>
+--    </Anchors> 
+
     self.MobName = getglobal(self.FrameName.."MobName");   
     self.Count = getglobal(self.FrameName.."Count");   
     self.Arrows = {};
@@ -64,7 +78,7 @@ function BananaBar2Button:init(addon,name)
     self.showButtonFrame = true;
     self.visible = true;
     
-    self.HealthBar:SetValue(17)
+    self.HealthBar:SetValue(0)
     --self.HealthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar");
     self.HealthBar:SetStatusBarTexture("Interface\\AddOns\\BananaBarClassic\\Images\\Chess128N");
     self.HealthBar:SetStatusBarColor(0,1,0,1);                    
@@ -88,15 +102,45 @@ function BananaBar2Button:SetButtonSymbol(index, unit)
     BananaBar2Button:SetSymbolTexture(self.Icon,index);
 end
 
-function BananaBar2Button:SetButtonSymbolExtra(unit)
-    BananaBar2Button:SetSymbolTexture(self.Icon,0, unit);
+function BananaBar2Button:SetButtonSymbolExtra(unit, icon)
+    BananaBar2Button:SetSymbolTexture(self.Icon,0, unit, icon);
 end
 
-function BananaBar2Button:SetSymbolTexture(frame, index, unit)
+function BananaBar2Button:SetSheepSymbol(icon)
+    if icon == nil then
+        self.SubIcon:Hide()
+    else
+        self.SubIcon:SetTexture(icon)
+        self.SubIcon:Show()
+    end
+end
+
+function BananaBar2Button:SetTimer(start, seconds)
+    if start then
+        self.Cooldown:SetCooldown(start,seconds);
+    else
+        self.Cooldown:SetCooldown(0,0);
+    end
+    --BananaBar2Button:SetSymbolTexture(self.Icon,0, unit, icon);
+end
+
+function BananaBar2Button:SetSymbolTexture(frame, index, unit, icon)
     if unit then
-        SetPortraitTexture(frame,unit)
-        frame:SetTexCoord(0, 1, 0, 1);
-        return;
+        if unit == "none" then
+            if icon then
+                frame:SetTexture(icon);            
+                frame:SetTexCoord(0, 1, 0, 1);
+                return;
+            end
+
+            SetPortraitTexture(frame,"player")
+            frame:SetTexCoord(0, 1, 0, 1);
+            return;
+        else
+            SetPortraitTexture(frame,unit)
+            frame:SetTexCoord(0, 1, 0, 1);
+            return;
+        end
     end
     if index <= 0 then
         frame:SetTexture(nil);

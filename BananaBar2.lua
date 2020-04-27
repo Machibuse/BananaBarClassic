@@ -82,7 +82,7 @@ options = {
             set = function(info,v) BananaBar2:Set_autosetcombat(v) end,
             order = 5,
         },
-        autosetcombat = {
+        showdebugmessages = {
             type = 'toggle',
             width = "full",
             name = L["showdebugmessages"],
@@ -840,6 +840,7 @@ function BananaBar2:OnInitialize()
     self.TARGETMARKS = { };
     self.IGNOREMARKS = { };
     self.IGNOREMOBS = { };
+    self.AuraInfo = { };
 
     self.db = LibStub("AceDB-3.0"):New("BananaBarClassicData", defaults, true)
 
@@ -892,7 +893,8 @@ function BananaBar2:OnInitialize()
     self:RegisterEvent("CHAT_MSG_ADDON");
     self:RegisterEvent("PLAYER_REGEN_DISABLED");
     self:RegisterEvent("PLAYER_REGEN_ENABLED");
-
+    self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
+    
     --LibStub("AceConsole-3.0"):InjectAceOptionsTable(self, options) todo
 
 
@@ -933,6 +935,125 @@ function BananaBar2:OnInitialize()
     self.mouseOverlayFrameTex:SetAllPoints(self.mouseOverlayFrame)
     self.mouseOverlayFrame.texture = self.mouseOverlayFrameTex;
 end
+
+
+local auraTypes = {
+	[118]    = {["CanBreak"]=true,["Name"]="Polymorph (Rank 1)",["Icon"]="Interface\\Icons\\Spell_Nature_Polymorph",["Duration"]=20},
+	[12824]  = {["CanBreak"]=true,["Name"]="Polymorph (Rank 2)",["Icon"]="Interface\\Icons\\Spell_Nature_Polymorph",["Duration"]=30},
+	[12825]  = {["CanBreak"]=true,["Name"]="Polymorph (Rank 3)",["Icon"]="Interface\\Icons\\Spell_Nature_Polymorph",["Duration"]=40},
+	[12826]  = {["CanBreak"]=true,["Name"]="Polymorph (Rank 4)",["Icon"]="Interface\\Icons\\Spell_Nature_Polymorph",["Duration"]=50},
+	[28272]  = {["CanBreak"]=true,["Name"]="Polymorph (Pig)",["Icon"]="Interface\\Icons\\Spell_Magic_PolymorphPig",["Duration"]=50},
+	[28271]  = {["CanBreak"]=true,["Name"]="Polymorph (Turtle)",["Icon"]="Interface\\Icons\\Ability_Hunter_Pet_Turtle",["Duration"]=50},
+	[61305]  = {["CanBreak"]=true,["Name"]="Polymorph (Black Cat)",["Icon"]="Interface\\Icons\\Achievement_Halloween_Cat_01",["Duration"]=50},
+	[61025]  = {["CanBreak"]=true,["Name"]="Polymorph (Serpent)",["Icon"]="Interface\\Icons\\Spell_Nature_Guardianward",["Duration"]=50},
+	[61721]  = {["CanBreak"]=true,["Name"]="Polymorph (Rabbit)",["Icon"]="Interface\\Icons\\Spell_Magic_PolymorphRabbit",["Duration"]=50},
+	[61780]  = {["CanBreak"]=true,["Name"]="Polymorph (Turkey)",["Icon"]="Interface\\Icons\\Achievement_WorldEvent_Thanksgiving",["Duration"]=50},
+	[161372] = {["CanBreak"]=true,["Name"]="Polymorph (Peacock)",["Icon"]="Interface\\Icons\\Inv_Pet_Peacock_Gold",["Duration"]=50},
+	[161354] = {["CanBreak"]=true,["Name"]="Polymorph (Monkey)",["Icon"]="Interface\\Icons\\Ability_Hunter_AspectOfTheMonkey",["Duration"]=50}, 
+	[161372] = {["CanBreak"]=true,["Name"]="Polymorph (Monkey)",["Icon"]="Interface\\Icons\\Ability_Hunter_AspectOfTheMonkey",["Duration"]=50},
+	[126819] = {["CanBreak"]=true,["Name"]="Polymorph (Porcupine)",["Icon"]="Interface\\Icons\\Inv_Pet_Porcupine",["Duration"]=50},
+	[161355] = {["CanBreak"]=true,["Name"]="Polymorph (Penguin)",["Icon"]="Interface\\Icons\\Inv_Misc_PenguinPet",["Duration"]=50},
+	[161353] = {["CanBreak"]=true,["Name"]="Polymorph (Polar Bear Cub)",["Icon"]="Interface\\Icons\\Inv_Pet_BabyBlizzardBear",["Duration"]=50},
+	[277787] = {["CanBreak"]=true,["Name"]="Polymorph (Direhorn)",["Icon"]="Interface\\Icons\\Inv_Pet_Direhorn",["Duration"]=50},
+	[277792] = {["CanBreak"]=true,["Name"]="Polymorph (Bumblebee)",["Icon"]="Interface\\Icons\\Inv_Bee_Default",["Duration"]=50},
+	[710]    = {["CanBreak"]=false,["Name"]="Banish (Rank 1)", ["Icon"]="Interface\\Icons\\Spell_shadow_cripple",["Duration"]=20},
+	[18647]  = {["CanBreak"]=false,["Name"]="Banish (Rank 2)", ["Icon"]="Interface\\Icons\\Spell_shadow_cripple",["Duration"]=30}
+}
+
+local damageEventTypes = {
+    ['SWING_DAMAGE'] = true,
+    ['RANGE_DAMAGE'] = true,
+    ['SPELL_DAMAGE'] = true,
+    ['SPELL_PERIODIC_DAMAGE'] = true,
+    ['SPELL_BUILDING_DAMAGE'] = true,
+    ['ENVIRONMENTAL_DAMAGE'] = true,
+    ['DAMAGE_SPLIT'] = true,
+    ['DAMAGE_SHIELD'] = true,
+}
+
+
+function BananaBar2:COMBAT_LOG_EVENT_UNFILTERED(event, ...)
+	local timestamp, eventType, hideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2, spellId, spellName, spellSchool = CombatLogGetCurrentEventInfo()
+	-- the classic always returns a spell id of zero so we
+    -- resolve the spell id using the spell name instead
+
+    if not self.AuraInfo then
+        self.AuraInfo = {}
+    end
+
+
+
+    if not destName then
+        destName = "<noname>"
+    end
+
+    if not sourceName then
+        sourceName = "<noname>"
+    end
+
+    if spellName then
+        spellId = select(7, GetSpellInfo(spellName)) or "<nospellid>"
+    end
+
+
+    local aura = auraTypes[spellId];
+    if aura then
+        if eventType == "SPELL_AURA_APPLIED" then
+            BananaBar2:Print("APPLIED "..aura.Name.." -> "..destName.." from "..sourceName)
+            self.AuraInfo[destGUID] = {
+                StartTime = GetTime(),
+                EndTime = nil,
+                BreakTime = nil,
+                BreakerGUID = nil,
+                BreakeReason = nil,
+                SpellId = spellId,
+                FromGUID = sourceGUID,
+                FromName = sourceName,
+                Name = destName.." ("..sourceName..")",
+            }
+        elseif eventType == "SPELL_AURA_REMOVED" then
+            BananaBar2:Print("REMOVED "..aura.Name.." -> "..destName.." from "..sourceName)
+            if self.AuraInfo[destGUID] then
+                self.AuraInfo[destGUID].EndTime = GetTime();
+            end
+        elseif eventType == "SPELL_AURA_REFRESH" then
+            BananaBar2:Print("REFRESH "..aura.Name.." -> "..destName.." from "..sourceName)
+            self.AuraInfo[destGUID] = {
+                StartTime = GetTime(),
+                EndTime = nil,
+                BreakTime = nil,
+                BrokeneakerGUID = nil,
+                BreakeReason = nil,
+                SpellId = spellId,
+                FromGUID = sourceGUID,
+                FromName = sourceName,
+                Name = destName.." ("..sourceName..")",
+            }
+        elseif eventType == "SPELL_AURA_BROKEN" then
+            BananaBar2:Print("BROKEN "..aura.Name.." -> "..destName.." from "..sourceName)
+            if self.AuraInfo[destGUID] then
+                self.AuraInfo[destGUID].BreakTime = GetTime();
+            end
+        elseif eventType == "SPELL_AURA_BROKEN_SPELL" then
+            BananaBar2:Print("BROKEN_SPELL "..aura.Name.." -> "..destName.." from "..sourceName)
+            if self.AuraInfo[destGUID] then
+                self.AuraInfo[destGUID].BreakTime = GetTime();
+            end
+        end
+    end
+
+
+    if damageEventTypes[eventType]  and self.AuraInfo[destGUID] and self.AuraInfo[destGUID].BreakTime ~= nil then 
+        if self.AuraInfo[destGUID] then
+            self.AuraInfo[destGUID].BreakerGUID = sourceGUID;
+            self.AuraInfo[destGUID].BreakReason = (eventType == 'SWING_DAMAGE' and 'Melee Damage' or spellName)
+            
+            local after = math.floor(self.AuraInfo[destGUID].BreakTime - self.AuraInfo[destGUID].StartTime,1);
+            BananaBar2:Print("Broken Sheep "..destName.." from "..sourceName.." with "..self.AuraInfo[destGUID].BreakReason.." after  "..after.." seconds")
+        end
+    end
+end
+
 
 function BananaBar2:BananaSetCursor(texture)
     self.mouseOverlayFrameTex:SetTexture(texture)
@@ -1542,6 +1663,8 @@ function BananaBar2:BananaUpdate()
     for guid,info in pairs(self.TARGETS) do 
         if BananaBar2:TableCount(info.from) > 0 and info.symbol == nil and UnitCanAttack("PLAYER",info.info_unit) then
             table.insert(targets, guid) 
+        elseif info.symbol == nil and self.AuraInfo[guid] ~= nil and self.AuraInfo[guid].EndTime == nil then
+            table.insert(targets, guid) 
         end
     end
 
@@ -1562,23 +1685,75 @@ function BananaBar2:BananaUpdate()
 
     for but=1,BANANA_MAX_BUTTONS,1 do
         if self.TARGETMARKS[but] then
-            local t = self.TARGETS[self.TARGETMARKS[but]];
+            local guid = self.TARGETMARKS[but];
+            local t = self.TARGETS[guid];
+
             self.Buttons[but]:SetCount(BananaBar2:FromCount(t.from));
             self.Buttons[but]:SetDead(t.info_dead);
             self.Buttons[but]:SetHuntersmark(t.has_huntersmark);
-            self.Buttons[but].HealthBar:SetMinMaxValues(0,t.info_healthmax);
-            self.Buttons[but].HealthBar:SetValue(t.info_health);
+        
+            if self.AuraInfo[guid] ~= nil and self.AuraInfo[guid].EndTime == nil then
+                
+                
+                local aura = auraTypes[self.AuraInfo[guid].SpellId];
+                
+
+                local max = aura.Duration * 100;
+                local current = max-math.floor((GetTime() - self.AuraInfo[guid].StartTime) * 100);
+                
+                self.Buttons[but].HealthBar:SetStatusBarColor(1,0,0,1);                    
+
+                self.Buttons[but].HealthBar:SetMinMaxValues(0,1000);
+                if current > 1000 then
+                    self.Buttons[but].HealthBar:SetValue(1000);
+                    self.Buttons[but].HealthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar");
+                else
+                    self.Buttons[but].HealthBar:SetStatusBarTexture("Interface\\AddOns\\BananaBarClassic\\Images\\Chess128N");
+                    self.Buttons[but].HealthBar:SetValue(current);
+                end
+                if but > BANANA_RAIDSYMBOL_BUTTON_COUNT then
+                    if t.info_unit == "none" then
+                        self.Buttons[but]:SetButtonSymbolExtra(t.info_unit,aura.Icon)
+                        self.Buttons[but]:SetSheepSymbol(nil);
+                    else
+                        self.Buttons[but]:SetButtonSymbolExtra(t.info_unit)
+                        self.Buttons[but]:SetSheepSymbol(aura.Icon);
+                    end
+                else
+                    self.Buttons[but]:SetSheepSymbol(aura.Icon);
+                end
+
+                self.Buttons[but]:SetTimer(self.AuraInfo[guid].StartTime, aura.Duration);
+            else
+                self.Buttons[but]:SetSheepSymbol(null);
+                self.Buttons[but]:SetTimer(0,0);
+                
+                --self.Buttons[but].HealthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar");
+                self.Buttons[but].HealthBar:SetStatusBarTexture("Interface\\AddOns\\BananaBarClassic\\Images\\Chess128N");
+                self.Buttons[but].HealthBar:SetStatusBarColor(0,1,0,1);                    
+                self.Buttons[but].HealthBar:SetMinMaxValues(0,t.info_healthmax);
+                self.Buttons[but].HealthBar:SetValue(t.info_health);
+                if but > BANANA_RAIDSYMBOL_BUTTON_COUNT then
+                    self.Buttons[but]:SetButtonSymbolExtra(t.info_unit)
+                end
+                --self.Buttons[but]:Cooldown:
+                 --SetTimer(nil);
+                 self.Buttons[but]:SetTimer();
+
+            end
             self.Buttons[but]:SetMobName(t.info_name);
+
+        
+        
             if UnitIsUnit("playertarget",t.info_unit) then
 	            self.Buttons[but]:SetSelected(false)
             else
 	            self.Buttons[but]:SetSelected(false)
             end
 
-            if but > BANANA_RAIDSYMBOL_BUTTON_COUNT then
-                self.Buttons[but]:SetButtonSymbolExtra(t.info_unit)
-            end
         else
+            self.Buttons[but]:SetSheepSymbol(null);
+            self.Buttons[but]:SetTimer(0,0);
             self.Buttons[but]:SetCount(nil);
             self.Buttons[but]:SetDead(false);
             self.Buttons[but]:SetHuntersmark(false);            
@@ -2177,10 +2352,14 @@ function BananaBar2:Debug(value)
     
 end
 function BananaBar2:Dump(name, value)
-    if Get_showdebugmessages() then
+    if BananaBar2:Get_showdebugmessages() then
         BananaBar2:Print("[D] "..name..": "..dump(value))
     end
 end
+function BananaBar2:Dump2(name, value)
+    BananaBar2:Print("[DD] "..name..": "..dump(value))
+end
+
 
 function dump(o)
     if type(o) == 'table' then
@@ -2413,6 +2592,18 @@ function BananaBar2:Scan()
     for unit,unitparent in pairs(unitsToScan) do
         self:ScanUnit(unit,unitparent); 
     end
+
+    for key,value in pairs(self.AuraInfo) do
+        local type = auraTypes[value.SpellId];
+        local realDur = GetTime()-value.StartTime;
+        if realDur > type.Duration+5 then
+            BananaBar2:Print("remove "..key)
+            self.AuraInfo[key] = nil;
+        else
+            self:AddGuidToList(key, value.Name);            
+        end
+    end
+
 end
 
 function BananaBar2:ResetScanBlock(block)
@@ -2462,6 +2653,23 @@ function BananaBar2:AddTargetToList(rti,unit,source)
         self.TARGETS[guid].from[source] = 1;
     end
 end
+
+function BananaBar2:AddGuidToList(guid, name)
+    if self.TARGETS[guid] == nil then
+        self.TARGETS[guid] = { }
+        self.TARGETS[guid].from = {}
+        self.TARGETS[guid].symbol = nil;
+        self.TARGETS[guid].info_unit = "none";
+        self.TARGETS[guid].info_name = name;
+        self.TARGETS[guid].info_dead = false;
+        self.TARGETS[guid].info_health = 0;
+        self.TARGETS[guid].info_healthmax = 0;
+        self.TARGETS[guid].has_huntersmark = false;
+    else        
+        self.TARGETS[guid].info_name = name;
+    end
+end
+
 
 function BananaBar2:UnitHasHuntersMark(unit)
     local iIterator = 1

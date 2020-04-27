@@ -1,9 +1,9 @@
 ## Interface: 11304
-## Title: BananaBarClassic  |cff7fff7f-Ace3-|r
+## Title: BananaBar Raid Symbols Classic |cff7fff7f-Ace3-|r
 ## Author: Bordeaux
-## Version: "$Rev: 2.0-alpha-1 $" 
+## Version: "@project-version@" 
 ## Notes: BananaBar2 is a set of buttons and functions to manage everything you can do with raid symbols.
-## X-ReleaseDate: "$Date: 2006-12-09 03:41:07 +0100 (Sa, 09 Dez 2006) $"
+## X-ReleaseDate: "@project-date-iso@"
 ## X-Email: bananabar@jendro.de
 ## X-Category: UnitFrame
 ## X-Embeds: Ace3

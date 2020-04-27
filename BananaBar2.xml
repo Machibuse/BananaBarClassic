@@ -74,6 +74,18 @@
 						</Anchor>
 					</Anchors>
 				</Texture>
+				<Texture name="$parentSubIcon" file="Interface\AddOns\BananaBarClassic\Images\rp_offline2" hidden="true">
+					<Size>
+						<AbsDimension x="16" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
             </Layer>
 			<Layer level="ARTWORK">
 				<FontString name="$parentMobName" inherits="GameFontNormalSmall" justifyH="LEFT">
@@ -185,16 +197,19 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Model name="$parentCooldown" inherits="CooldownFrameTemplate">
+			<Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate">
 				<Size x="36" y="36"/>
+		<SwipeTexture>
+			<Color r="0" g="0" b="0" a="0.05"/>
+		</SwipeTexture>
 				<Anchors>
-					<Anchor point="CENTER" relativePoint="LEFT">
+					<Anchor point="CENTER" relativePoint="CENTER">
 						<Offset>
-							<AbsDimension x="0" y="-1"/>
+							<AbsDimension x="0" y="0"/>
 						</Offset>
 					</Anchor>
 				</Anchors> 
-			</Model>
+			</Cooldown>
             <StatusBar name="$parentHealthBar" minValue="0" maxValue="100" defaultValue="90" hidden="false" orientation="HORIZONTAL" drawLayer="ARTWORK">
 				<Size x="100" y="10"/>
 				<Anchors>
@@ -412,16 +427,6 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Model name="$parentCooldown" inherits="CooldownFrameTemplate">
-				<Size x="36" y="36"/>
-				<Anchors>
-					<Anchor point="CENTER" relativePoint="LEFT">
-						<Offset>
-							<AbsDimension x="0" y="-1"/>
-						</Offset>
-					</Anchor>
-				</Anchors> 
-			</Model>
             <StatusBar name="$parentHealthBar" minValue="0" maxValue="100" defaultValue="90" hidden="false" orientation="HORIZONTAL" drawLayer="ARTWORK">
 				<Size x="100" y="10"/>
 				<Anchors>
