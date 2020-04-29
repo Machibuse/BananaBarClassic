@@ -50,6 +50,7 @@ function BananaBar2Button:init(addon,name)
     self.Selected = getglobal(self.FrameName.."Selected");
     self.NormalTexture = getglobal(self.FrameName.."NormalTexture");
     self.PushedTexture = getglobal(self.FrameName.."PushedTexture");   
+    self.Stopwatch = getglobal(self.FrameName.."Stopwatch");   
     self.HealthBar = getglobal(self.FrameName.."HealthBar");   
     self.SubIcon =  getglobal(self.FrameName.."SubIcon");  
     self.Cooldown =  getglobal(self.FrameName.."Cooldown");  
@@ -100,6 +101,14 @@ end
 
 function BananaBar2Button:SetButtonSymbol(index, unit)
     BananaBar2Button:SetSymbolTexture(self.Icon,index);
+end
+
+function BananaBar2Button:SetStopwatch(set)
+    if set then
+        self.Stopwatch:Show()
+    else
+        self.Stopwatch:Hide()
+    end
 end
 
 function BananaBar2Button:SetButtonSymbolExtra(unit, icon)

@@ -74,6 +74,19 @@
 						</Anchor>
 					</Anchors>
 				</Texture>
+				<Texture name="$parentStopwatch" file="Interface\AddOns\BananaBarClassic\Images\stopwatch" hidden="true">
+					<Color r="1" g="1" b="1" a="0.8"/>
+					<Size>
+						<AbsDimension x="36" y="36"/>
+					</Size>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
 				<Texture name="$parentSubIcon" file="Interface\AddOns\BananaBarClassic\Images\rp_offline2" hidden="true">
 					<Size>
 						<AbsDimension x="16" y="16"/>
@@ -197,11 +210,11 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate">
+			<Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate" drawLayer="ARTWORK">
 				<Size x="36" y="36"/>
-		<SwipeTexture>
-			<Color r="0" g="0" b="0" a="0.05"/>
-		</SwipeTexture>
+				<SwipeTexture>
+					<Color r="0" g="0" b="0" a="0.5"/>
+				</SwipeTexture>
 				<Anchors>
 					<Anchor point="CENTER" relativePoint="CENTER">
 						<Offset>

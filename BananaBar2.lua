@@ -840,7 +840,7 @@ function BananaBar2:OnInitialize()
     self.TARGETMARKS = { };
     self.IGNOREMARKS = { };
     self.IGNOREMOBS = { };
-    self.AuraInfo = { };
+    self.AURAINFO = { };
 
     self.db = LibStub("AceDB-3.0"):New("BananaBarClassicData", defaults, true)
 
@@ -971,16 +971,23 @@ local damageEventTypes = {
     ['DAMAGE_SHIELD'] = true,
 }
 
+local spellNames = nil;
 
-function BananaBar2:COMBAT_LOG_EVENT_UNFILTERED(event, ...)
+function BananaBar2:COMBAT_LOG_EVENT_UNFILTERED(event, a1,a2,a3, ...)
 	local timestamp, eventType, hideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2, spellId, spellName, spellSchool = CombatLogGetCurrentEventInfo()
 	-- the classic always returns a spell id of zero so we
     -- resolve the spell id using the spell name instead
 
-    if not self.AuraInfo then
-        self.AuraInfo = {}
+    if spellNames == nil then
+        spellNames = {};
+        spellNames[GetSpellInfo(12826)] = 12826;
+        spellNames[GetSpellInfo(18647)] = 18647;
     end
 
+
+    if not self.AURAINFO then
+        self.AURAINFO = {}
+    end
 
 
     if not destName then
@@ -991,65 +998,78 @@ function BananaBar2:COMBAT_LOG_EVENT_UNFILTERED(event, ...)
         sourceName = "<noname>"
     end
 
+    if not spellId then
+        spellId = "<nospellid>"
+    end
+    if not spellSchool then
+        spellSchool = "<nospellSchool>"
+    end
+    
+    --BananaBar2:Print(spellName.." "..spellId.." "..sourceName.." "..destName.." "..spellSchool);
+
     if spellName then
-        spellId = select(7, GetSpellInfo(spellName)) or "<nospellid>"
+        spellId = spellNames[spellName];
     end
 
+    
 
     local aura = auraTypes[spellId];
     if aura then
         if eventType == "SPELL_AURA_APPLIED" then
             BananaBar2:Print("APPLIED "..aura.Name.." -> "..destName.." from "..sourceName)
-            self.AuraInfo[destGUID] = {
+            self.AURAINFO[destGUID] = {
                 StartTime = GetTime(),
                 EndTime = nil,
                 BreakTime = nil,
                 BreakerGUID = nil,
                 BreakeReason = nil,
-                SpellId = spellId,
+                TempSpellId = spellId,
+                RealSpellId = nil,
                 FromGUID = sourceGUID,
                 FromName = sourceName,
                 Name = destName.." ("..sourceName..")",
             }
         elseif eventType == "SPELL_AURA_REMOVED" then
             BananaBar2:Print("REMOVED "..aura.Name.." -> "..destName.." from "..sourceName)
-            if self.AuraInfo[destGUID] then
-                self.AuraInfo[destGUID].EndTime = GetTime();
+            if self.AURAINFO[destGUID] then
+                self.AURAINFO[destGUID].EndTime = GetTime();
             end
         elseif eventType == "SPELL_AURA_REFRESH" then
             BananaBar2:Print("REFRESH "..aura.Name.." -> "..destName.." from "..sourceName)
-            self.AuraInfo[destGUID] = {
+            self.AURAINFO[destGUID] = {
                 StartTime = GetTime(),
                 EndTime = nil,
                 BreakTime = nil,
                 BrokeneakerGUID = nil,
                 BreakeReason = nil,
-                SpellId = spellId,
+                TempSpellId = spellId,
+                RealSpellId = nil,
                 FromGUID = sourceGUID,
                 FromName = sourceName,
                 Name = destName.." ("..sourceName..")",
             }
         elseif eventType == "SPELL_AURA_BROKEN" then
             BananaBar2:Print("BROKEN "..aura.Name.." -> "..destName.." from "..sourceName)
-            if self.AuraInfo[destGUID] then
-                self.AuraInfo[destGUID].BreakTime = GetTime();
+            if self.AURAINFO[destGUID] then
+                self.AURAINFO[destGUID].BreakTime = GetTime();
             end
         elseif eventType == "SPELL_AURA_BROKEN_SPELL" then
             BananaBar2:Print("BROKEN_SPELL "..aura.Name.." -> "..destName.." from "..sourceName)
-            if self.AuraInfo[destGUID] then
-                self.AuraInfo[destGUID].BreakTime = GetTime();
+            if self.AURAINFO[destGUID] then
+                self.AURAINFO[destGUID].BreakTime = GetTime();
             end
         end
     end
 
 
-    if damageEventTypes[eventType]  and self.AuraInfo[destGUID] and self.AuraInfo[destGUID].BreakTime ~= nil and self.AuraInfo[destGUID].BreakerGUID == nil then 
-        if self.AuraInfo[destGUID] then
-            self.AuraInfo[destGUID].BreakerGUID = sourceGUID;
-            self.AuraInfo[destGUID].BreakReason = (eventType == 'SWING_DAMAGE' and 'Melee Damage' or spellName)
+
+    if damageEventTypes[eventType]  and self.AURAINFO[destGUID] and self.AURAINFO[destGUID].BreakTime ~= nil and self.AURAINFO[destGUID].BreakerGUID == nil then 
+        if self.AURAINFO[destGUID] then
+            self.AURAINFO[destGUID].BreakerGUID = sourceGUID;
+            self.AURAINFO[destGUID].BreakReason = (eventType == 'SWING_DAMAGE' and 'Melee Damage' or spellName)
             
-            local after = math.floor(self.AuraInfo[destGUID].BreakTime - self.AuraInfo[destGUID].StartTime,1);
-            BananaBar2:Print("Broken Sheep "..destName.." from "..sourceName.." with "..self.AuraInfo[destGUID].BreakReason.." after  "..after.." seconds")
+            local after = math.floor(self.AURAINFO[destGUID].BreakTime - self.AURAINFO[destGUID].StartTime,1);
+            BananaBar2:Print("Broken Sheep "..destName.." from "..sourceName.." with "..self.AURAINFO[destGUID].BreakReason.." after  "..after.." seconds")
         end
     end
 end
@@ -1663,7 +1683,7 @@ function BananaBar2:BananaUpdate()
     for guid,info in pairs(self.TARGETS) do 
         if BananaBar2:TableCount(info.from) > 0 and info.symbol == nil and UnitCanAttack("PLAYER",info.info_unit) then
             table.insert(targets, guid) 
-        elseif info.symbol == nil and self.AuraInfo[guid] ~= nil and self.AuraInfo[guid].EndTime == nil then
+        elseif info.symbol == nil and self.AURAINFO[guid] ~= nil and self.AURAINFO[guid].EndTime == nil then
             table.insert(targets, guid) 
         end
     end
@@ -1692,14 +1712,25 @@ function BananaBar2:BananaUpdate()
             self.Buttons[but]:SetDead(t.info_dead);
             self.Buttons[but]:SetHuntersmark(t.has_huntersmark);
         
-            if self.AuraInfo[guid] ~= nil and self.AuraInfo[guid].EndTime == nil then
+            if self.AURAINFO[guid] ~= nil and self.AURAINFO[guid].EndTime == nil then
                 
-                
-                local aura = auraTypes[self.AuraInfo[guid].SpellId];
+                local aura = auraTypes[self.AURAINFO[guid].TempSpellId];
+                local temp = true;
+                if self.AURAINFO[guid].RealSpellId == nil and t.info_unit ~= "none" then
+                    self.AURAINFO[guid].RealSpellId = self:FindSpellId(t.info_unit);
+                end
+
+
+                if self.AURAINFO[guid].RealSpellId ~= nil then
+                    aura = auraTypes[self.AURAINFO[guid].RealSpellId];
+                    temp = false;
+                end
+
+
                 
 
                 local max = aura.Duration * 100;
-                local current = max-math.floor((GetTime() - self.AuraInfo[guid].StartTime) * 100);
+                local current = max-math.floor((GetTime() - self.AURAINFO[guid].StartTime) * 100);
                 
                 self.Buttons[but].HealthBar:SetStatusBarColor(1,0,0,1);                    
 
@@ -1723,7 +1754,13 @@ function BananaBar2:BananaUpdate()
                     self.Buttons[but]:SetSheepSymbol(aura.Icon);
                 end
 
-                self.Buttons[but]:SetTimer(self.AuraInfo[guid].StartTime, aura.Duration);
+                self.Buttons[but]:SetStopwatch(temp);
+
+                if temp then
+                    self.Buttons[but]:SetTimer();
+                else
+                    self.Buttons[but]:SetTimer(self.AURAINFO[guid].StartTime, aura.Duration);
+                end
             else
                 self.Buttons[but]:SetSheepSymbol(null);
                 self.Buttons[but]:SetTimer(0,0);
@@ -1738,8 +1775,7 @@ function BananaBar2:BananaUpdate()
                 end
                 --self.Buttons[but]:Cooldown:
                  --SetTimer(nil);
-                 self.Buttons[but]:SetTimer();
-
+                 self.Buttons[but]:SetStopwatch(false);
             end
             self.Buttons[but]:SetMobName(t.info_name);
 
@@ -1760,6 +1796,7 @@ function BananaBar2:BananaUpdate()
             self.Buttons[but].HealthBar:SetValue(0);
             self.Buttons[but]:SetMobName(nil);
             self.Buttons[but]:SetSelected(false)
+            self.Buttons[but]:SetStopwatch(false);
             if but > BANANA_RAIDSYMBOL_BUTTON_COUNT then
                 self.Buttons[but]:SetButtonSymbolExtra(nil)
             end
@@ -2593,12 +2630,12 @@ function BananaBar2:Scan()
         self:ScanUnit(unit,unitparent); 
     end
 
-    for key,value in pairs(self.AuraInfo) do
-        local type = auraTypes[value.SpellId];
+    for key,value in pairs(self.AURAINFO) do
+        local type = auraTypes[value.TempSpellId];
         local realDur = GetTime()-value.StartTime;
         if realDur > type.Duration+5 then
             BananaBar2:Print("remove "..key)
-            self.AuraInfo[key] = nil;
+            self.AURAINFO[key] = nil;
         else
             self:AddGuidToList(key, value.Name);            
         end
@@ -2668,6 +2705,22 @@ function BananaBar2:AddGuidToList(guid, name)
     else        
         self.TARGETS[guid].info_name = name;
     end
+end
+
+function BananaBar2:FindSpellId(unit)
+    self:Print("FindSpellId: "..unit)
+    local iIterator = 1
+    local debuffName, debuffTexture, debuffApplications, debuffDispelType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, castByPlayer, nameplateShowAll, timeMod = UnitDebuff(unit, iIterator);
+    while (debuffTexture) do
+        --timeMod
+        if spellId ~= nil and auraTypes[spellId] ~= nil then
+            self:Print("Found Debuff "..auraTypes[spellId].Name.." on "..UnitName(unit)) 
+            return spellId;
+        end
+        iIterator = iIterator + 1
+    	debuffName, debuffTexture, debuffApplications, debuffDispelType = UnitDebuff(unit, iIterator);
+    end
+    return nil;
 end
 
 
