@@ -54,7 +54,7 @@ function BananaBar2AssistButton:init(addon,name)
     self.frame.Id="1"
     self.frame:SetPoint("CENTER",0,0)
     self.frame:Show();
-    self.Addon:Debug("init "..self.FrameName);
+    --self.Addon:Debug("init "..self.FrameName);
 
 
     self.TargetSymbol = getglobal(self.FrameName.."TargetSymbol");
@@ -234,7 +234,7 @@ function BananaBar2AssistButton:OnLoad(mouseButton)
 end
 
 function BananaBar2AssistButton:OnClick(mouseButton)
-	self.Addon:Debug("Click:"..self.FrameName.." "..mouseButton);
+	--self.Addon:Debug("Click:"..self.FrameName.." "..mouseButton);
     if not self.Addon.layoutmode then
 	    local  clicktype = BananaBar2AssistButton:GetClickType(mouseButton);
 		--self.Addon:Print(clicktype);
@@ -265,7 +265,7 @@ function BananaBar2AssistButton:OnMouseDown(mouseButton)
         elseif mouseButton == "Button5" then
             BananaBar2AssistButton:UndockAll();
         else
-            self.Addon:Debug("OnMouseDown:"..self.FrameName.." "..mouseButton);
+            --self.Addon:Debug("OnMouseDown:"..self.FrameName.." "..mouseButton);
         end
         return;
     end
@@ -340,25 +340,25 @@ function BananaBar2AssistButton:AutoDock()
             local dx = self.frame:GetLeft()-BananaBarAllAssistButtons[i].frame:GetLeft();
             local dy = self.frame:GetTop()-BananaBarAllAssistButtons[i].frame:GetTop();
             if i == 5 then
-                self.Addon:Debug("xy:"..dx.." "..dy);
+                --self.Addon:Debug("xy:"..dx.." "..dy);
             end
             if BananaBar2AssistButton:TestDiff(dx,dy,0,25,9) then
-                self.Addon:Debug("AutoDock:"..self.ButtonId.." oberhalb von "..i);
+                --self.Addon:Debug("AutoDock:"..self.ButtonId.." oberhalb von "..i);
                 self:Dock(BANANA_DOCK_TOP,BananaBarAllAssistButtons[i]);
                 return;
             end
             if BananaBar2AssistButton:TestDiff(dx,dy,25,0,9) then
-                self.Addon:Debug("AutoDock:"..self.ButtonId.." rechts von "..i);
+                --self.Addon:Debug("AutoDock:"..self.ButtonId.." rechts von "..i);
                 self:Dock(BANANA_DOCK_RIGHT,BananaBarAllAssistButtons[i]);
                 return;
             end
             if BananaBar2AssistButton:TestDiff(dx,dy,0,-25,9) then
-                self.Addon:Debug("AutoDock:"..self.ButtonId.." unterhalb von "..i);
+                --self.Addon:Debug("AutoDock:"..self.ButtonId.." unterhalb von "..i);
                 self:Dock(BANANA_DOCK_BOTTOM,BananaBarAllAssistButtons[i]);
                 return;
             end
             if BananaBar2AssistButton:TestDiff(dx,dy,-25,0,9) then
-                self.Addon:Debug("AutoDock:"..self.ButtonId.." links von "..i);
+                --self.Addon:Debug("AutoDock:"..self.ButtonId.." links von "..i);
                 self:Dock(BANANA_DOCK_LEFT,BananaBarAllAssistButtons[i]);
                 return;
             end
@@ -394,7 +394,7 @@ function BananaBar2AssistButton:LoadPos()
                 --self.Addon:Print("other= "..other.Name);
                 self:Dock(self.Addon.db.profile.ButtonLayout[self.Name].DockDir,other)
             else
-                self.Addon:Debug(self.Name.." kein other");
+                --self.Addon:Debug(self.Name.." kein other");
             end
         else
             if self.Addon.db.profile.ButtonLayout[self.Name].x then
@@ -406,11 +406,11 @@ function BananaBar2AssistButton:LoadPos()
                 self.frame:ClearAllPoints();
                 self.frame:SetPoint("TOPLEFT",UIParent,"TOPLEFT",x/self.frame:GetScale(),y/self.frame:GetScale())
             else
-                self.Addon:Debug(self.Name.." kein pos");
+                --self.Addon:Debug(self.Name.." kein pos");
             end
         end
     else
-        self.Addon:Debug(self.Name.." kein lay");
+        --self.Addon:Debug(self.Name.." kein lay");
     end
 end
 

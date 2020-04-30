@@ -37,7 +37,7 @@ function BananaBar2Button:init(addon,name)
     self.frame.Id="1"
     self.frame:SetPoint("CENTER",0,0)
     self.frame:Hide();
-    self.Addon:Debug("init "..self.FrameName);
+    --self.Addon:Debug("init "..self.FrameName);
 
     self.TargetSymbol = getglobal(self.FrameName.."TargetSymbol");
     self.Icon = getglobal(self.FrameName.."Icon");
@@ -54,9 +54,18 @@ function BananaBar2Button:init(addon,name)
     self.HealthBar = getglobal(self.FrameName.."HealthBar");   
     self.SubIcon =  getglobal(self.FrameName.."SubIcon");  
     self.Cooldown =  getglobal(self.FrameName.."Cooldown");  
-    self.Cooldown:SetSwipeTexture("Interface\\AddOns\\BananaBarClassic\\Images\\Swite_Circle.blp",0,0,0,0);
+    self.Cooldown:SetSwipeTexture("Interface\\AddOns\\BananaBarClassic\\Images\\Swite_Circle.blp",0,0,0,0.5);
     self.Cooldown:SetUseCircularEdge(true)
-    --self.Cooldown:SetAlpha(0.1);
+    self.Cooldown:SetAlpha(0.7);
+    self.Cooldown:SetReverse(true)
+    self.Cooldown:SetSwipeTexture([[Interface\PlayerFrame\DK-Frost-Rune-CDFill]])
+    self.Cooldown:SetEdgeTexture([[Interface\PlayerFrame\DK-BloodUnholy-Rune-CDSpark]])
+    
+    
+    self.Cooldown:SetDrawEdge(true)
+    self.Cooldown:SetDrawBling(false)
+    self.Cooldown:SetHideCountdownNumbers(false)
+    
 --    <Size x="36" y="36"/>
 --    <Anchors>
 --        <Anchor point="CENTER" relativePoint="LEFT">
@@ -255,9 +264,9 @@ end
 
 function BananaBar2Button:Dock(direction, other)
 
-    self.Addon:Debug("Dock called");
-    self.Addon:Debug(direction);
-    self.Addon:Debug(self.Name);
+    --self.Addon:Debug("Dock called");
+    --self.Addon:Debug(direction);
+    --self.Addon:Debug(self.Name);
     
 
     self.dockFrame = other;       
@@ -267,7 +276,7 @@ function BananaBar2Button:Dock(direction, other)
     self.frame:ClearAllPoints();
 
     if other then
-        self.Addon:Debug(other.Name);
+        --self.Addon:Debug(other.Name);
         if direction == 0 then
             error("Docking direction=NONE but other dockung frame given.");
             return;
@@ -290,30 +299,30 @@ function BananaBar2Button:Dock(direction, other)
     end
 
     if direction == BANANA_DOCK_TOP then
-        self.Addon:Debug("Docking "..self.FrameName.." on top of "..other.FrameName)
+        --self.Addon:Debug("Docking "..self.FrameName.." on top of "..other.FrameName)
     	self.frame:SetPoint("BOTTOM", other.frame, "TOP",0,2);
     elseif direction == BANANA_DOCK_RIGHT then
-        self.Addon:Debug("Docking "..self.FrameName.." at the right side of "..other.FrameName)
+        --self.Addon:Debug("Docking "..self.FrameName.." at the right side of "..other.FrameName)
     	self.frame:SetPoint("LEFT", other.frame, "RIGHT",2,0);
     elseif direction == BANANA_DOCK_BOTTOM then
-        self.Addon:Debug("Docking "..self.FrameName.." at the bottom of "..other.FrameName)
+        --self.Addon:Debug("Docking "..self.FrameName.." at the bottom of "..other.FrameName)
     	self.frame:SetPoint("TOP", other.frame, "BOTTOM",0,-2);
     elseif direction == BANANA_DOCK_LEFT then
-        self.Addon:Debug("Docking "..self.FrameName.." at the left side of "..other.FrameName)
+        --self.Addon:Debug("Docking "..self.FrameName.." at the left side of "..other.FrameName)
     	self.frame:SetPoint("RIGHT", other.frame, "LEFT",-2,0);
     elseif direction == BANANA_DOCK_NONE then
-        self.Addon:Debug("UnDocking "..self.FrameName)
+        --self.Addon:Debug("UnDocking "..self.FrameName)
     else        
         error("Invalid docking direction.");
     end
 end
 
 function BananaBar2Button:OnLoad(frame)
-    self.Addon:Print("OnLoad:"..self.FrameName);
+    --self.Addon:Print("OnLoad:"..self.FrameName);
 end
 
 function BananaBar2Button:OnClick(mouseButton)
-	self.Addon:Debug("Click:"..self.FrameName.." "..(mouseButton or 'null'));
+	--self.Addon:Debug("Click:"..self.FrameName.." "..(mouseButton or 'null'));
     if not self.Addon.layoutmode then
 	    local  clicktype = BananaBar2Button:GetClickType(mouseButton);
 	    self.Addon:ExecuteAction(self, clicktype);
@@ -321,7 +330,7 @@ function BananaBar2Button:OnClick(mouseButton)
 end
 
 function BananaBar2Button:OnMouseDown(mouseButton, frame)
-    self.Addon:Debug("OnMouseDown:"..self.FrameName.." "..(mouseButton or 'null'));
+    --self.Addon:Debug("OnMouseDown:"..self.FrameName.." "..(mouseButton or 'null'));
     if self.Addon.layoutmode then
         if mouseButton == "RightButton" then
             self:Dock(BANANA_DOCK_NONE);
@@ -335,7 +344,7 @@ function BananaBar2Button:OnMouseDown(mouseButton, frame)
         elseif mouseButton == "Button5" then
             BananaBar2Button:UndockAll();
         else
-            self.Addon:Debug("OnMouseDown:"..self.FrameName.." "..(mouseButton or 'null'));
+            --self.Addon:Debug("OnMouseDown:"..self.FrameName.." "..(mouseButton or 'null'));
         end
         return;
     else
@@ -416,25 +425,25 @@ function BananaBar2Button:AutoDock()
             local dx = self.frame:GetLeft()-BananaBarAllButtons[i].frame:GetLeft();
             local dy = self.frame:GetTop()-BananaBarAllButtons[i].frame:GetTop();
             if i == 5 then
-                self.Addon:Debug("xy:"..dx.." "..dy);
+                --self.Addon:Debug("xy:"..dx.." "..dy);
             end
             if BananaBar2Button:TestDiff(dx,dy,0,25,9) then
-                self.Addon:Debug("AutoDock:"..self.ButtonId.." oberhalb von "..i);
+                --self.Addon:Debug("AutoDock:"..self.ButtonId.." oberhalb von "..i);
                 self:Dock(BANANA_DOCK_TOP,BananaBarAllButtons[i]);
                 return;
             end
             if BananaBar2Button:TestDiff(dx,dy,25,0,9) then
-                self.Addon:Debug("AutoDock:"..self.ButtonId.." rechts von "..i);
+                --self.Addon:Debug("AutoDock:"..self.ButtonId.." rechts von "..i);
                 self:Dock(BANANA_DOCK_RIGHT,BananaBarAllButtons[i]);
                 return;
             end
             if BananaBar2Button:TestDiff(dx,dy,0,-25,9) then
-                self.Addon:Debug("AutoDock:"..self.ButtonId.." unterhalb von "..i);
+                --self.Addon:Debug("AutoDock:"..self.ButtonId.." unterhalb von "..i);
                 self:Dock(BANANA_DOCK_BOTTOM,BananaBarAllButtons[i]);
                 return;
             end
             if BananaBar2Button:TestDiff(dx,dy,-25,0,9) then
-                self.Addon:Debug("AutoDock:"..self.ButtonId.." links von "..i);
+                --self.Addon:Debug("AutoDock:"..self.ButtonId.." links von "..i);
                 self:Dock(BANANA_DOCK_LEFT,BananaBarAllButtons[i]);
                 return;
             end
@@ -470,7 +479,7 @@ function BananaBar2Button:LoadPos()
                 --self.Addon:Print("other= "..other.Name);
                 self:Dock(self.Addon.db.profile.ButtonLayout[self.Name].DockDir,other)
             else
-                self.Addon:Debug(self.Name.." kein other");
+                --self.Addon:Debug(self.Name.." kein other");
             end
         else
             if self.Addon.db.profile.ButtonLayout[self.Name].x then
@@ -482,11 +491,11 @@ function BananaBar2Button:LoadPos()
                 self.frame:ClearAllPoints();
                 self.frame:SetPoint("TOPLEFT",UIParent,"TOPLEFT",x/self.frame:GetScale(),y/self.frame:GetScale())
             else
-                self.Addon:Debug(self.Name.." kein pos");
+                --self.Addon:Debug(self.Name.." kein pos");
             end
         end
     else
-        self.Addon:Debug(self.Name.." kein lay");
+        --self.Addon:Debug(self.Name.." kein lay");
     end
 end
 

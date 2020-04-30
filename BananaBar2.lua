@@ -1,3 +1,4 @@
+
 BananaBar2 = LibStub("AceAddon-3.0"):NewAddon("BananaBar2", "AceConsole-3.0", "AceHook-3.0","AceEvent-3.0","AceBucket-3.0","AceTimer-3.0");
 
 local L = LibStub("AceLocale-3.0"):GetLocale("BananaBar2")
@@ -857,7 +858,7 @@ function BananaBar2:OnInitialize()
 
     self.Buttons = {};
     for i = 1,BANANA_MAX_BUTTONS,1 do
-        self:Debug("create new button ".."Nr"..i);
+        --self:Debug("create new button ".."Nr"..i);
         self.Buttons[i] = BananaBar2Button:new(self,"Nr"..i);
         if i > BANANA_RAIDSYMBOL_BUTTON_COUNT then
             self.Buttons[i]:SetButtonSymbolExtra(nil);
@@ -938,7 +939,10 @@ end
 
 
 local auraTypes = {
-	[118]    = {["CanBreak"]=true,["Name"]="Polymorph (Rank 1)",["Icon"]="Interface\\Icons\\Spell_Nature_Polymorph",["Duration"]=20},
+	[-1]    = {["CanBreak"]=true,["Name"]="Polymorph (Unknown Rank)",["Icon"]="Interface\\Icons\\Spell_Nature_Polymorph",["Duration"]=50},
+	[-2]    = {["CanBreak"]=false,["Name"]="Banish (Unknown Rank)", ["Icon"]="Interface\\Icons\\Spell_shadow_cripple",["Duration"]=30},
+
+    [118]    = {["CanBreak"]=true,["Name"]="Polymorph (Rank 1)",["Icon"]="Interface\\Icons\\Spell_Nature_Polymorph",["Duration"]=20},
 	[12824]  = {["CanBreak"]=true,["Name"]="Polymorph (Rank 2)",["Icon"]="Interface\\Icons\\Spell_Nature_Polymorph",["Duration"]=30},
 	[12825]  = {["CanBreak"]=true,["Name"]="Polymorph (Rank 3)",["Icon"]="Interface\\Icons\\Spell_Nature_Polymorph",["Duration"]=40},
 	[12826]  = {["CanBreak"]=true,["Name"]="Polymorph (Rank 4)",["Icon"]="Interface\\Icons\\Spell_Nature_Polymorph",["Duration"]=50},
@@ -971,17 +975,18 @@ local damageEventTypes = {
     ['DAMAGE_SHIELD'] = true,
 }
 
-local spellNames = nil;
+local knownSpellsNameDummyId = nil;
 
 function BananaBar2:COMBAT_LOG_EVENT_UNFILTERED(event, a1,a2,a3, ...)
 	local timestamp, eventType, hideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2, spellId, spellName, spellSchool = CombatLogGetCurrentEventInfo()
 	-- the classic always returns a spell id of zero so we
     -- resolve the spell id using the spell name instead
 
-    if spellNames == nil then
-        spellNames = {};
-        spellNames[GetSpellInfo(12826)] = 12826;
-        spellNames[GetSpellInfo(18647)] = 18647;
+    if knownSpellsNameDummyId == nil then
+        knownSpellsNameDummyId = {};
+        knownSpellsNameDummyId[GetSpellInfo(12826)] = -1; -- polymorph
+        knownSpellsNameDummyId[GetSpellInfo(18647)] = -2; -- banish
+        self:Dump("Initialized spellnames/maxtime for combatlog scanning", knownSpellsNameDummyId)
     end
 
 
@@ -1007,69 +1012,64 @@ function BananaBar2:COMBAT_LOG_EVENT_UNFILTERED(event, a1,a2,a3, ...)
     
     --BananaBar2:Print(spellName.." "..spellId.." "..sourceName.." "..destName.." "..spellSchool);
 
-    if spellName then
-        spellId = spellNames[spellName];
-    end
 
     
 
-    local aura = auraTypes[spellId];
-    if aura then
+    local dummySpellId = knownSpellsNameDummyId[spellName];
+
+    if dummySpellId then
         if eventType == "SPELL_AURA_APPLIED" then
-            BananaBar2:Print("APPLIED "..aura.Name.." -> "..destName.." from "..sourceName)
+            BananaBar2:Debug("KNOWN AURA APPLIED "..spellName.." on "..destName.." ("..destGUID..") from "..sourceName.." (max "..dummySpellId.." seconds)")
             self.AURAINFO[destGUID] = {
                 StartTime = GetTime(),
                 EndTime = nil,
                 BreakTime = nil,
                 BreakerGUID = nil,
                 BreakeReason = nil,
-                TempSpellId = spellId,
+                DummySpellId = dummySpellId,
                 RealSpellId = nil,
                 FromGUID = sourceGUID,
                 FromName = sourceName,
                 Name = destName.." ("..sourceName..")",
             }
         elseif eventType == "SPELL_AURA_REMOVED" then
-            BananaBar2:Print("REMOVED "..aura.Name.." -> "..destName.." from "..sourceName)
+            BananaBar2:Debug("KNOWN AURA REMOVED "..spellName.." on "..destName.." ("..destGUID..") from "..sourceName.." (max "..dummySpellId.." seconds)")
             if self.AURAINFO[destGUID] then
                 self.AURAINFO[destGUID].EndTime = GetTime();
             end
         elseif eventType == "SPELL_AURA_REFRESH" then
-            BananaBar2:Print("REFRESH "..aura.Name.." -> "..destName.." from "..sourceName)
+            BananaBar2:Debug("KNOWN AURA REFRESH "..spellName.." on "..destName.." ("..destGUID..") from "..sourceName.." (max "..dummySpellId.." seconds)")
             self.AURAINFO[destGUID] = {
                 StartTime = GetTime(),
                 EndTime = nil,
                 BreakTime = nil,
                 BrokeneakerGUID = nil,
                 BreakeReason = nil,
-                TempSpellId = spellId,
+                DummySpellId = dummySpellId,
                 RealSpellId = nil,
                 FromGUID = sourceGUID,
                 FromName = sourceName,
                 Name = destName.." ("..sourceName..")",
-            }
+            } 
         elseif eventType == "SPELL_AURA_BROKEN" then
-            BananaBar2:Print("BROKEN "..aura.Name.." -> "..destName.." from "..sourceName)
+            BananaBar2:Debug("KNOWN AURA BROKEN "..spellName.." on "..destName.." ("..destGUID..") from "..sourceName.." (max "..dummySpellId.." seconds)")
             if self.AURAINFO[destGUID] then
                 self.AURAINFO[destGUID].BreakTime = GetTime();
             end
         elseif eventType == "SPELL_AURA_BROKEN_SPELL" then
-            BananaBar2:Print("BROKEN_SPELL "..aura.Name.." -> "..destName.." from "..sourceName)
+            BananaBar2:Debug("KNOWN AURA BROKEN BY SPELL "..spellName.." on "..destName.." ("..destGUID..") from "..sourceName.." (max "..dummySpellId.." seconds)")
             if self.AURAINFO[destGUID] then
                 self.AURAINFO[destGUID].BreakTime = GetTime();
             end
         end
     end
 
-
-
     if damageEventTypes[eventType]  and self.AURAINFO[destGUID] and self.AURAINFO[destGUID].BreakTime ~= nil and self.AURAINFO[destGUID].BreakerGUID == nil then 
         if self.AURAINFO[destGUID] then
             self.AURAINFO[destGUID].BreakerGUID = sourceGUID;
             self.AURAINFO[destGUID].BreakReason = (eventType == 'SWING_DAMAGE' and 'Melee Damage' or spellName)
-            
             local after = math.floor(self.AURAINFO[destGUID].BreakTime - self.AURAINFO[destGUID].StartTime,1);
-            BananaBar2:Print("Broken Sheep "..destName.." from "..sourceName.." with "..self.AURAINFO[destGUID].BreakReason.." after  "..after.." seconds")
+            BananaBar2:Debug("Broken Aura "..destName.." from "..sourceName.." with "..self.AURAINFO[destGUID].BreakReason.." after  "..after.." seconds")
         end
     end
 end
@@ -1714,12 +1714,13 @@ function BananaBar2:BananaUpdate()
         
             if self.AURAINFO[guid] ~= nil and self.AURAINFO[guid].EndTime == nil then
                 
-                local aura = auraTypes[self.AURAINFO[guid].TempSpellId];
+                local aura = auraTypes[self.AURAINFO[guid].DummySpellId];
                 local temp = true;
+    
                 if self.AURAINFO[guid].RealSpellId == nil and t.info_unit ~= "none" then
+                    -- target nach spell scannen
                     self.AURAINFO[guid].RealSpellId = self:FindSpellId(t.info_unit);
                 end
-
 
                 if self.AURAINFO[guid].RealSpellId ~= nil then
                     aura = auraTypes[self.AURAINFO[guid].RealSpellId];
@@ -2121,23 +2122,6 @@ function BananaBar2:FindSpellIdByTexture(searchtex)
 end
 
 
-function BananaBar2:SpellHuntersmark()
-	if not UnitCanAttack("player", "target")    then
-    	BananaBar2:PlayError();
-		return;
-	end
-    local spell = BananaBar2:FindSpellIdByTexture(BANANA_ABILITY_HUNTER_SNIPERSHOT);
-    if spell == nil then
-        BananaBar2:Print("Huntersmark Spell not found");
-        BananaBar2:PlayError();
-        return;
-    end
-    CastSpell(spell,BOOKTYPE_SPELL);
-    BananaBar2:PlaySet();
-end
-
-
-
 function BananaBar2:OnClick()
 	PlaySoundFile("Interface\\AddOns\\BananaBarClassic\\Sound\\2hh.mp3");
 end
@@ -2210,14 +2194,14 @@ function BananaBar2:SearchDown()
 	if BananaBar2.Dragging or BananaBar2.MouseOverPainting then
 		return;
 	end
-	self:Print("Changing mouse cursor when over marked mob now.");
+	--self:Print("Changing mouse cursor when over marked mob now.");
 	self.ShowMouseSymbol = true;
     self.BananaCursorTimer = self:ScheduleRepeatingTimer("BananaCursor", 0.1 , self);
 end
 
 function BananaBar2:SearchUp()
 	if self.ShowMouseSymbol then
-		self:Print("No more changing mouse cursor when over marked mob now.");
+		--self:Print("No more changing mouse cursor when over marked mob now.");
 		self.ShowMouseSymbol = false;
         BananaBar2.CancelTimer(self.BananaCursorTimer)
    	end
@@ -2382,19 +2366,39 @@ function BananaBar2:DragButtonOnUnit(button,mouseButton)
     end
 end
 
+function BananaBar2:InitChatFrame()
+    if not self.DebugChatFrame then
+        local i=1 
+        while _G["ChatFrame"..i] do 
+            if _G["ChatFrame"..i].name == "Debug" then
+                self.DebugChatFrame = _G["ChatFrame"..i]
+            end
+            _G["ChatFrame"..i]:AddMessage ("I am chatframe "..i) i=i+1 
+        end
+        if not self.DebugChatFrame then
+            self.DebugChatFrame = _G["ChatFrame"..1] 
+        end
+    end
+end
+
 function BananaBar2:Debug(value)
+    self:InitChatFrame()
+    
     if self:Get_showdebugmessages() then
-        BananaBar2:Print("[D] "..dump(value))
+        BananaBar2:Print(self.DebugChatFrame, dump(value))
     end
     
 end
 function BananaBar2:Dump(name, value)
+    self:InitChatFrame()
     if BananaBar2:Get_showdebugmessages() then
-        BananaBar2:Print("[D] "..name..": "..dump(value))
+        BananaBar2:Print(self.DebugChatFrame, name..": "..dump(value))
     end
 end
+
 function BananaBar2:Dump2(name, value)
-    BananaBar2:Print("[DD] "..name..": "..dump(value))
+    self:InitChatFrame()
+    BananaBar2:Print(self.DebugChatFrame, name..": "..dump(value))
 end
 
 
@@ -2631,10 +2635,10 @@ function BananaBar2:Scan()
     end
 
     for key,value in pairs(self.AURAINFO) do
-        local type = auraTypes[value.TempSpellId];
+        local type = auraTypes[value.DummySpellId];
         local realDur = GetTime()-value.StartTime;
         if realDur > type.Duration+5 then
-            BananaBar2:Print("remove "..key)
+            --BananaBar2:Print("remove "..key)
             self.AURAINFO[key] = nil;
         else
             self:AddGuidToList(key, value.Name);            
@@ -2708,13 +2712,13 @@ function BananaBar2:AddGuidToList(guid, name)
 end
 
 function BananaBar2:FindSpellId(unit)
-    self:Print("FindSpellId: "..unit)
+    --self:Print("FindSpellId: "..unit)
     local iIterator = 1
     local debuffName, debuffTexture, debuffApplications, debuffDispelType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, castByPlayer, nameplateShowAll, timeMod = UnitDebuff(unit, iIterator);
     while (debuffTexture) do
         --timeMod
         if spellId ~= nil and auraTypes[spellId] ~= nil then
-            self:Print("Found Debuff "..auraTypes[spellId].Name.." on "..UnitName(unit)) 
+            self:Debug("Found Aura Debuff on mob "..auraTypes[spellId].Name.." on "..UnitName(unit)) 
             return spellId;
         end
         iIterator = iIterator + 1

@@ -100,7 +100,10 @@
 					</Anchors>
 				</Texture>
             </Layer>
-			<Layer level="ARTWORK">
+			<Layer level="BACKGROUND">
+				<Texture name="$parentIcon"/>
+			</Layer>
+			<Layer level="BACKGROUND">
 				<FontString name="$parentMobName" inherits="GameFontNormalSmall" justifyH="LEFT">
 					<Size>
 						<AbsDimension x="300" y="24"/>
@@ -150,9 +153,6 @@
 					</Anchors>
 				</Texture>
             </Layer>
-			<Layer level="BACKGROUND">
-				<Texture name="$parentIcon"/>
-			</Layer>
 			<Layer level="ARTWORK">
                 <!-- rotes overlay für den button -->
 				<Texture name="$parentFlash" file="Interface\Buttons\UI-QuickslotRed" hidden="true"/>
