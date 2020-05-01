@@ -7,6 +7,12 @@
 		</FontHeight>
 		<Color r="1.0" g="1.0" b="0"/>
 	</Font>
+	<Font name="GameFontBananaTimer" outline="THICK" font="Fonts\ARIALN.TTF" virtual="true">
+		<FontHeight>
+			<AbsValue val="20"/>
+		</FontHeight>
+		<Color r="1.0" g="0.7" b="0.7"/>
+	</Font>
 
 	<Button clampedToScreen="true" name="BananaBar2ButtonTemplate" virtual="true">
 		<Size>
@@ -33,7 +39,7 @@
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="TOP">
 							<Offset>
-								<AbsDimension x="0" y="-6"/>
+								<AbsDimension x="0" y="0"/>
                             </Offset>
 						</Anchor>
 					</Anchors>
@@ -45,7 +51,7 @@
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="RIGHT">
 							<Offset>
-								<AbsDimension x="-6" y="0"/>
+								<AbsDimension x="0" y="0"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -57,7 +63,7 @@
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="BOTTOM">
 							<Offset>
-								<AbsDimension x="0" y="6"/>
+								<AbsDimension x="0" y="0"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -69,7 +75,7 @@
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="LEFT">
 							<Offset>
-								<AbsDimension x="6" y="0"/>
+								<AbsDimension x="0" y="0"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -179,6 +185,17 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
+			<FontString name="$parentTimer" inherits="GameFontBananaTimer" justifyH="CENTER">
+				<Size x="36" y="26"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors> 
+			</FontString>
+
 			</Layer>
 			<Layer level="OVERLAY">
                 <!-- schrift, unten mitte -->
@@ -210,7 +227,7 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate" drawLayer="ARTWORK">
+			<Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate" drawLayer="ARTWORK" textureSubLevel="7">
 				<Size x="36" y="36"/>
 				<SwipeTexture>
 					<Color r="0" g="0" b="0" a="0.5"/>
@@ -223,7 +240,7 @@
 					</Anchor>
 				</Anchors> 
 			</Cooldown>
-            <StatusBar name="$parentHealthBar" minValue="0" maxValue="100" defaultValue="90" hidden="false" orientation="HORIZONTAL" drawLayer="ARTWORK">
+            <StatusBar name="$parentHealthBar" minValue="0" maxValue="100" defaultValue="90" hidden="false" orientation="HORIZONTAL" drawLayer="ARTWORK" textureSubLevel="6">
 				<Size x="100" y="10"/>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT">
@@ -281,7 +298,7 @@
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="TOP">
 							<Offset>
-								<AbsDimension x="0" y="-6"/>
+								<AbsDimension x="0" y="0"/>
                             </Offset>
 						</Anchor>
 					</Anchors>
@@ -293,7 +310,7 @@
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="RIGHT">
 							<Offset>
-								<AbsDimension x="-6" y="0"/>
+								<AbsDimension x="0" y="0"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -305,7 +322,7 @@
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="BOTTOM">
 							<Offset>
-								<AbsDimension x="0" y="6"/>
+								<AbsDimension x="0" y="0"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -317,7 +334,7 @@
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="LEFT">
 							<Offset>
-								<AbsDimension x="6" y="0"/>
+								<AbsDimension x="0" y="0"/>
 							</Offset>
 						</Anchor>
 					</Anchors>

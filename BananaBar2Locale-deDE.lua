@@ -69,9 +69,8 @@ L.showbutton                      = "Einzelne buttons Anzeigen/Ausblenden";
 -- description used for normal buttons and also for the parent menu "Show buttons for”
 L.showbuttondesc                  = "Anzeigen und ausblenden von Buttons";
 
--- used for huntersmark buttons
 L.showunmarkeddesc             = "Anzeigen und ausblenden von Buttons";	
--- Symbol name for the huntersmark
+-- Symbol name for mob buttons without any mark
 L.unmarked                     = "Unmarkiert";
         
 -- Translations for the button names
@@ -205,12 +204,8 @@ L.showoutofgroupdesc              = "Symbol button anzeigen wenn alleine unterwe
 -- shows or hides the raid info panel (this panel is only shown when you are in a raid
 L.showraidinfo                    = "RaidInfoPanel anzeigen im Raid";
 L.showraidinfodesc                = "RaidInfoPanel anzeigen im Raid. Ausserhalb einer Raid Gruppe ist das RaidInfo Panel niemals sichtbar";
+
 -- Shows mob name and health bar next to the raid symbol buttons
-L.showextrainfo             		= "Zeige Mobnamen und Lebensbalken neben den Buttons";
+L.showextrainfo             	  = "Zeige Mobnamen und Lebensbalken neben den Buttons";
 L.showextrainfodesc               = "Zeigt den Mobnamen und einen Lebensbalken rechts neben den Buttons";
--- Show raid icons next to the CT_RAID player frames if checked
-L.showiconsonctraidmt             = "Raidicons in der CT_RAID Maintank Anzeige einblenden";
-L.showiconsonctraidmtdesc         = "Raidicons in der CT_RAID Maintank Anzeige einblenden";
--- shows or hides the raid info panel (this panel is only shown when you are in a raid
-L.showiconsonctraidpl             = "Raidicons neben den CT_RAID Gruppenfenstern anzeigen";
-L.showiconsonctraidpldesc         = "Raidicons rechts neben den CT_RAID Gruppenfenstern anzeigen";
+

@@ -10,7 +10,9 @@ if not L then return end
 -- all texts where the textid ends with "desc" are 
 -- long descriptions for the menu entry shown in the help and in the tooltip
 
+L.showunmarkeddesc             = "Anzeigen und ausblenden von Buttons";	
 
+L.unmarked                     = "Unmarkiert";
 
 -- Short name of the Addon, should normally not be translated
 L.addonname                       = "BananaBar"; 
@@ -39,6 +41,10 @@ L.binding_key                     = "Key to set symbols to all accessible mobs";
 -- mob you are hoovering. This can be used to find a specific mob in a group or check the 
 -- symbol of the mob you are searching for 
 L.binding_search                  = "Search for a symbol with mouse over";
+
+
+L.autosetcombat                  = "Auto set symbols on mobs when coming in fight with player";
+L.autosetcombatdesc              = "Auto set symbols on mobs when coming in fight with player";
 
 
 -- the submenu where you can find all the settings corresponding to all visual effects

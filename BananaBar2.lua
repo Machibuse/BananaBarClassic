@@ -107,7 +107,7 @@ options = {
             type = "group", 
             name = L["mousebutton"],
             desc = L["mousebuttondesc"],
-            hidden = true,
+            hidden = false,
             args = {
                 action_config = {
                     type = "group", 
@@ -350,116 +350,113 @@ options = {
                     set = function(info,v) BananaBar2:Set_showextrainfo(v) end,
                     order = 24,
                 },
-
-
-
-                buttons = {
-                    type = "group", 
-                    name = L["showbutton"],
-                    desc = L["showbuttondesc"],
-                    order = 10,
-                    args = {
-                        button1 = {
-                            type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLOR1..L["symbolname1"].."|r",
-                            desc = L["showbuttondesc"],
-                            get = function() return BananaBar2:Get_showbutton(1) end,
-                            set = function(info,v) BananaBar2:Set_showbutton(1,v) end,
-                            order = 1,
-                        },
-                        button2 = {
-                            type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLOR2..L["symbolname2"].."|r",
-                            desc = L["showbuttondesc"],
-                            get = function() return BananaBar2:Get_showbutton(2) end,
-                            set = function(info,v) BananaBar2:Set_showbutton(2,v) end,
-                            order = 2,
-                        },
-                        button3 = {
-                            type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLOR3..L["symbolname3"].."|r",
-                            desc = L["showbuttondesc"],
-                            get = function() return BananaBar2:Get_showbutton(3) end,
-                            set = function(info,v) BananaBar2:Set_showbutton(3,v) end,
-                            order = 3,
-                        },
-                        button4 = {
-                            type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLOR4..L["symbolname4"].."|r",
-                            desc = L["showbuttondesc"],
-                            get = function() return BananaBar2:Get_showbutton(4) end,
-                            set = function(info,v) BananaBar2:Set_showbutton(4,v) end,
-                            order = 4,
-                        },
-                        button5 = {
-                            type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLOR5..L["symbolname5"].."|r",
-                            desc = L["showbuttondesc"],
-                            get = function() return BananaBar2:Get_showbutton(5) end,
-                            set = function(info,v) BananaBar2:Set_showbutton(5,v) end,
-                            order = 5,
-                        },
-                        button6 = {
-                            type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLOR6..L["symbolname6"].."|r",
-                            desc = L["showbuttondesc"],
-                            get = function() return BananaBar2:Get_showbutton(6) end,
-                            set = function(info,v) BananaBar2:Set_showbutton(6,v) end,
-                            order = 6,
-                        },
-                        button7 = {
-                            type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLOR7..L["symbolname7"].."|r",
-                            desc = L["showbuttondesc"],
-                            get = function() return BananaBar2:Get_showbutton(7) end,
-                            set = function(info,v) BananaBar2:Set_showbutton(7,v) end,
-                            order = 7,
-                        },
-                        button8 = {
-                            type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLOR8..L["symbolname8"].."|r",
-                            desc = L["showbuttondesc"],
-                            get = function() return BananaBar2:Get_showbutton(8) end,
-                            set = function(info,v) BananaBar2:Set_showbutton(8,v) end,
-                            order = 8,
-                        },
-                        huntersmarkbutton1 = {
-                            type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLORHM..L["unmarked"].." 1|r",
-                            desc = L["showunmarkeddesc"],
-                            get = function() return BananaBar2:Get_showbutton(9) end,
-                            set = function(info,v) BananaBar2:Set_showbutton(9,v) end,
-                            order = 9,
-                        },
-                        huntersmarkbutton2 = {
-                            type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLORHM..L["unmarked"].." 2|r",
-                            desc = L["showunmarkeddesc"],
-                            get = function() return BananaBar2:Get_showbutton(10) end,
-                            set = function(info,v) BananaBar2:Set_showbutton(10,v) end,
-                            order = 10,
-                        },
-                        huntersmarkbutton3 = {
-                            type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLORHM..L["unmarked"].." 3|r",
-                            desc = L["showunmarkeddesc"],
-                            get = function() return BananaBar2:Get_showbutton(11) end,
-                            set = function(info,v) BananaBar2:Set_showbutton(11,v) end,
-                            order = 11,
-                        },
-                        huntersmarkbutton4 = {
-                            type = "toggle",
-                            name = "|c"..BANANA_SYMBOL_COLORHM..L["unmarked"].." 4|r",
-                            desc = L["showunmarkeddesc"],
-                            get = function() return BananaBar2:Get_showbutton(12) end,
-                            set = function(info,v) BananaBar2:Set_showbutton(12,v) end,
-                            order = 12,
-                        },
-                    },
-                },
+            },
+    },
+    buttons = {
+        type = "group", 
+        name = L["showbutton"],
+        desc = L["showbuttondesc"],
+        order = 10,
+        args = {
+            button1 = {
+                type = "toggle",
+                name = "|c"..BANANA_SYMBOL_COLOR1..L["symbolname1"].."|r",
+                desc = L["showbuttondesc"],
+                get = function() return BananaBar2:Get_showbutton(1) end,
+                set = function(info,v) BananaBar2:Set_showbutton(1,v) end,
+                order = 1,
+            },
+            button2 = {
+                type = "toggle",
+                name = "|c"..BANANA_SYMBOL_COLOR2..L["symbolname2"].."|r",
+                desc = L["showbuttondesc"],
+                get = function() return BananaBar2:Get_showbutton(2) end,
+                set = function(info,v) BananaBar2:Set_showbutton(2,v) end,
+                order = 2,
+            },
+            button3 = {
+                type = "toggle",
+                name = "|c"..BANANA_SYMBOL_COLOR3..L["symbolname3"].."|r",
+                desc = L["showbuttondesc"],
+                get = function() return BananaBar2:Get_showbutton(3) end,
+                set = function(info,v) BananaBar2:Set_showbutton(3,v) end,
+                order = 3,
+            },
+            button4 = {
+                type = "toggle",
+                name = "|c"..BANANA_SYMBOL_COLOR4..L["symbolname4"].."|r",
+                desc = L["showbuttondesc"],
+                get = function() return BananaBar2:Get_showbutton(4) end,
+                set = function(info,v) BananaBar2:Set_showbutton(4,v) end,
+                order = 4,
+            },
+            button5 = {
+                type = "toggle",
+                name = "|c"..BANANA_SYMBOL_COLOR5..L["symbolname5"].."|r",
+                desc = L["showbuttondesc"],
+                get = function() return BananaBar2:Get_showbutton(5) end,
+                set = function(info,v) BananaBar2:Set_showbutton(5,v) end,
+                order = 5,
+            },
+            button6 = {
+                type = "toggle",
+                name = "|c"..BANANA_SYMBOL_COLOR6..L["symbolname6"].."|r",
+                desc = L["showbuttondesc"],
+                get = function() return BananaBar2:Get_showbutton(6) end,
+                set = function(info,v) BananaBar2:Set_showbutton(6,v) end,
+                order = 6,
+            },
+            button7 = {
+                type = "toggle",
+                name = "|c"..BANANA_SYMBOL_COLOR7..L["symbolname7"].."|r",
+                desc = L["showbuttondesc"],
+                get = function() return BananaBar2:Get_showbutton(7) end,
+                set = function(info,v) BananaBar2:Set_showbutton(7,v) end,
+                order = 7,
+            },
+            button8 = {
+                type = "toggle",
+                name = "|c"..BANANA_SYMBOL_COLOR8..L["symbolname8"].."|r",
+                desc = L["showbuttondesc"],
+                get = function() return BananaBar2:Get_showbutton(8) end,
+                set = function(info,v) BananaBar2:Set_showbutton(8,v) end,
+                order = 8,
+            },
+            huntersmarkbutton1 = {
+                type = "toggle",
+                name = "|c"..BANANA_SYMBOL_COLORHM..L["unmarked"].." 1|r",
+                desc = L["showunmarkeddesc"],
+                get = function() return BananaBar2:Get_showbutton(9) end,
+                set = function(info,v) BananaBar2:Set_showbutton(9,v) end,
+                order = 9,
+            },
+            huntersmarkbutton2 = {
+                type = "toggle",
+                name = "|c"..BANANA_SYMBOL_COLORHM..L["unmarked"].." 2|r",
+                desc = L["showunmarkeddesc"],
+                get = function() return BananaBar2:Get_showbutton(10) end,
+                set = function(info,v) BananaBar2:Set_showbutton(10,v) end,
+                order = 10,
+            },
+            huntersmarkbutton3 = {
+                type = "toggle",
+                name = "|c"..BANANA_SYMBOL_COLORHM..L["unmarked"].." 3|r",
+                desc = L["showunmarkeddesc"],
+                get = function() return BananaBar2:Get_showbutton(11) end,
+                set = function(info,v) BananaBar2:Set_showbutton(11,v) end,
+                order = 11,
+            },
+            huntersmarkbutton4 = {
+                type = "toggle",
+                name = "|c"..BANANA_SYMBOL_COLORHM..L["unmarked"].." 4|r",
+                desc = L["showunmarkeddesc"],
+                get = function() return BananaBar2:Get_showbutton(12) end,
+                set = function(info,v) BananaBar2:Set_showbutton(12,v) end,
+                order = 12,
             },
         },
-        
+    },
+
 
     }
 }
@@ -489,9 +486,6 @@ local defaults =
 
         showextrainfo = true,
 
-        showiconsonctraidmt = true,
-
-        showiconsonctraidpl = true,
 
 
         actions = {
@@ -1095,6 +1089,10 @@ end
 
 function BananaBar2:PLAYER_REGEN_ENABLED(event)
     self:Debug("Leave Combat")
+    for i = 1,40,1 do
+        self.AssistButtons[i]:SetVisible(true);
+    end
+
 end
 
 
@@ -1313,29 +1311,6 @@ function BananaBar2:Set_showraidinfo(v)
     BananaBar2AssistButton:UpdateAllVisible();
 end;
 
-------------------------------------------
---- showiconsonctraidmt
-------------------------------------------
-
-function BananaBar2:Get_showiconsonctraidmt() 
-    return self.db.profile.showiconsonctraidmt;
-end;
-
-function BananaBar2:Set_showiconsonctraidmt(v) 
-    self.db.profile.showiconsonctraidmt = v;
-end;
-
-------------------------------------------
---- showiconsonctraidpl
-------------------------------------------
-
-function BananaBar2:Get_showiconsonctraidpl() 
-    return self.db.profile.showiconsonctraidpl;
-end;
-
-function BananaBar2:Set_showiconsonctraidpl(v) 
-    self.db.profile.showiconsonctraidpl = v;
-end;
 
 ------------------------------------------
 --- showextrainfo
@@ -1437,12 +1412,7 @@ end
 ------------------------------------------
 
 function BananaBar2:Execute_Config()
---    self.dewdrop:Open(
---        UIParent, 
---        'children', function() self.dewdrop:FeedAceOptionsTable(options) end,
---        'cursorX', true, 
---        'cursorY', true
---    )
+    LibStub("AceConfigDialog-3.0"):Open("BananaBar2")
 end
 
 function BananaBar2:ExecuteAction(button, clicktype)

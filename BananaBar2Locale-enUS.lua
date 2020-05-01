@@ -11,6 +11,8 @@ if not L then return end
 -- long descriptions for the menu entry shown in the help and in the tooltip
 
 
+L.showunmarkeddesc             = "Anzeigen und ausblenden von Buttons";	
+L.unmarked                     = "Unmarkiert";
 
 -- Short name of the Addon, should normally not be translated
 L.addonname                       = "BananaBar2"; 
@@ -36,6 +38,8 @@ L.binding_key                     = "Key to set symbols to all accessible mobs";
 -- symbol of the mob you are searching for 
 L.binding_search                  = "Search for a symbol with mouse over";
 
+L.autosetcombat                  = "Auto set symbols on mobs when coming in fight with player";
+L.autosetcombatdesc              = "Auto set symbols on mobs when coming in fight with player";
 
 -- the submenu where you can find all the settings corresponding to all visual effects
 -- of bananabar. For example "Hide buttons"; "button size"; "show button frames" etc.

@@ -60,8 +60,8 @@ function BananaBar2Button:init(addon,name)
     self.Cooldown:SetReverse(true)
     self.Cooldown:SetSwipeTexture([[Interface\PlayerFrame\DK-Frost-Rune-CDFill]])
     self.Cooldown:SetEdgeTexture([[Interface\PlayerFrame\DK-BloodUnholy-Rune-CDSpark]])
-    
-    
+
+    self.Timer = getglobal(self.FrameName.."Timer");   
     self.Cooldown:SetDrawEdge(true)
     self.Cooldown:SetDrawBling(false)
     self.Cooldown:SetHideCountdownNumbers(false)
@@ -135,9 +135,14 @@ end
 
 function BananaBar2Button:SetTimer(start, seconds)
     if start then
-        self.Cooldown:SetCooldown(start,seconds);
+        local left = start + seconds - GetTime()+1
+        if left > 0 then
+            self.Timer:SetText(tostring(math.floor(left)));
+        else    
+            self.Timer:SetText("");
+        end
     else
-        self.Cooldown:SetCooldown(0,0);
+        self.Timer:SetText("");
     end
     --BananaBar2Button:SetSymbolTexture(self.Icon,0, unit, icon);
 end
