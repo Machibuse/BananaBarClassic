@@ -50,6 +50,8 @@ function BananaBar2Button:init(addon,name)
     self.Selected = getglobal(self.FrameName.."Selected");
     self.NormalTexture = getglobal(self.FrameName.."NormalTexture");
     self.PushedTexture = getglobal(self.FrameName.."PushedTexture");   
+    self.Buttonback = getglobal(self.FrameName.."Buttonback");   
+    
     self.Stopwatch = getglobal(self.FrameName.."Stopwatch");   
     self.HealthBar = getglobal(self.FrameName.."HealthBar");   
     self.SubIcon =  getglobal(self.FrameName.."SubIcon");  
@@ -647,6 +649,15 @@ function BananaBar2Button:UpdateAllButtonFrame(show)
             BananaBarAllButtons[i].NormalTexture:SetAlpha(0);
             BananaBarAllButtons[i].frame:SetPushedTexture("Interface\\AddOns\\BananaBarClassic\\Images\\Pressed");            
             showButtonFrame = false;
+        end
+    end
+end
+function BananaBar2Button:UpdateAllButtonBack(show)
+    for i = 1, BananaBarButtonNameCounter-1, 1 do
+        if show then
+            BananaBarAllButtons[i].Buttonback:SetAlpha(0.75);
+        else
+            BananaBarAllButtons[i].Buttonback:SetAlpha(0);
         end
     end
 end

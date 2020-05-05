@@ -46,6 +46,16 @@ L.binding_search                  = "Search for a symbol with mouse over";
 L.autosetcombat                  = "Auto set symbols on mobs when coming in fight with player";
 L.autosetcombatdesc              = "Auto set symbols on mobs when coming in fight with player";
 
+L.buttonorder					 = "Symbol order for auto set symbols";
+L.buttonorderdesc 				 = "Change the symbol order for auto set symbols";
+
+L.symbol_order_combat			 = "Symbol order combat";
+L.symbol_order_combat_desc		 = "Set symbol order for autoset symbols by hotkey";
+L.symbol_order_hotkey			 = "Symbol order hotkey";
+L.symbol_order_hotkey_desc		 = "Set symbol order for autoset symbols by hotkey";
+L.symbol_order_mouse			 = "Symbol order mouse";
+L.symbol_order_mouse_desc		 = "Set symbol order for mouseover";
+L.order_symbols_desc		     = "Symbol 1 ist the symbol that is used first change the order here";
 
 -- the submenu where you can find all the settings corresponding to all visual effects
 -- of bananabar. For example "Hide buttons"; "button size"; "show button frames" etc.
@@ -150,6 +160,10 @@ L.autosymbolsonmouseoverdesc      = "If checked, setting symbols on mouseover is
 -- description for the menu entrys for the specific mobs in the mobsettings menu          
 L.autosymboldesc                  = "If checked this symbol is used for autosymbols and autosymbols in combat, "..
 			 "mouseover targeting always uses all symbols";
+
+
+L.hidebuttonbackdesc			  = "Hide or show the button backgrounds";
+L.hidebuttonback				  = "Hide button background";
 
 
 -- shift key on the keyboard, used in mouse button settings        
