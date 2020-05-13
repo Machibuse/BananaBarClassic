@@ -17,30 +17,20 @@ local MINOR_VERSION = "$Rev: 101 $"
 local SheduleList = nil;
 local InCombat = UnitAffectingCombat("player");
 
-function prnt(text)
-    DEFAULT_CHAT_FRAME:AddMessage(tostring(text))
-end
 
 
 
 local SecureActionQueue = LibStub:NewLibrary("SecureActionQueue-2.0", 1)
 
-function SecureActionQueue:AceEvent_FullyInitialized()
-    self:RegisterEvent("PLAYER_REGEN_DISABLED", "PLAYER_REGEN_DISABLED")
-    self:RegisterEvent("PLAYER_REGEN_ENABLED", "PLAYER_REGEN_ENABLED")
-end
 
 function SecureActionQueue:PLAYER_REGEN_DISABLED()
-   	--prnt("COMBAT");
     InCombat = true;
 end
 
 function SecureActionQueue:PLAYER_REGEN_ENABLED()
-   	--prnt("COMBAT END");
     InCombat = false;
     
     if SheduleList then
-    	--prnt("executing sheduled commands");
 	    for sheduleid,param in pairs(SheduleList) do
 	        self:Execute(param.type, param.par1, param.par2, param.par3, param.par4);
 	    end
@@ -51,7 +41,6 @@ end
 function SecureActionQueue:Shedule(sheduleid,type,par1,par2,par3,par4)
     if InCombat then
         if not SheduleList then
-        	--prnt("sheduling command(s) for later execution");
         	SheduleList = {};
         end
         SheduleList[sheduleid]    =
@@ -63,13 +52,17 @@ function SecureActionQueue:Shedule(sheduleid,type,par1,par2,par3,par4)
             ["par4"] = par4;
         }
     else
-        --prnt("direct exec "..sheduleid.." "..type);
         self:Execute(type,par1,par2,par3,par4);
     end
 end
 
 function SecureActionQueue:Execute(type,par1,par2,par3,par4)
-    self[type](self,par1,par2,par3,par4);
+    --BananaBar2:Print("type "..type.." "..tostring(InCombat).." "..tostring(UnitAffectingCombat("player")))
+    xpcall(self[type],onerror, self,par1,par2,par3,par4)
+end
+
+function onerror()
+    BananaBar2:Debug("SecureActionQueue:Execute Failed")
 end
 
 ------------------------------------------------------------------

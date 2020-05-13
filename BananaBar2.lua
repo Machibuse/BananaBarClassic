@@ -378,6 +378,19 @@ options = {
                     end,
                     order = 22
                 },
+                showraidinfoall = {
+                    type = "toggle",
+                    width = "full",
+                    name = L["showraidinfoall"],
+                    desc = L["showraidinfoalldesc"],
+                    get = function()
+                        return BananaBar2:Get_showraidinfoall()
+                    end,
+                    set = function(info, v)
+                        BananaBar2:Set_showraidinfoall(v)
+                    end,
+                    order = 23
+                },
                 showraidinfo = {
                     type = "toggle",
                     width = "full",
@@ -1617,7 +1630,9 @@ function BananaBar2:OnInitialize()
     self:RegisterEvent("PLAYER_REGEN_DISABLED")
     self:RegisterEvent("PLAYER_REGEN_ENABLED")
     self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-
+    self:RegisterEvent("RAID_TARGET_UPDATE")
+    self:RegisterEvent("CHAT_MSG_TARGETICONS")
+    
     --LibStub("AceConsole-3.0"):InjectAceOptionsTable(self, options) todo
 
     --self.OnMenuRequest = options;
@@ -1672,13 +1687,13 @@ end
 local auraTypes = {
     [-1] = {
         ["CanBreak"] = true,
-        ["Name"] = "Polymorph (Unknown Rank)",
+        ["Name"] = "Polymorph (Unknown Rank/Duration)",
         ["Icon"] = "Interface\\Icons\\Spell_Nature_Polymorph",
         ["Duration"] = 50
     },
     [-2] = {
         ["CanBreak"] = false,
-        ["Name"] = "Banish (Unknown Rank)",
+        ["Name"] = "Banish (Unknown Rank/Duration)",
         ["Icon"] = "Interface\\Icons\\Spell_shadow_cripple",
         ["Duration"] = 30
     },
@@ -1817,6 +1832,33 @@ local damageEventTypes = {
 
 local knownSpellsNameDummyId = nil
 
+
+function BananaBar2:CHAT_MSG_TARGETICONS(event, a1, a2, a3, a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19, ...)
+    BananaBar2:Dump("a-ev",event);
+    BananaBar2:Dump("a-a1",a1);
+    BananaBar2:Dump("a-a2",a2);
+    BananaBar2:Dump("a-a3",a3);
+    BananaBar2:Dump("a-a4",a4);
+    BananaBar2:Dump("a-a5",a5);
+    BananaBar2:Dump("a-a6",a6);
+    BananaBar2:Dump("a-a7",a7);
+    BananaBar2:Dump("a-a8",a8);
+    BananaBar2:Dump("a-a9",a9);
+    BananaBar2:Dump("a-a10",a10);
+    BananaBar2:Dump("a-a11",a11);
+    BananaBar2:Dump("a-a12",a12);
+    BananaBar2:Dump("a-a13",a13);
+    BananaBar2:Dump("a-a14",a14);
+    BananaBar2:Dump("a-a15",a15);
+    BananaBar2:Dump("a-a16",a16);
+    BananaBar2:Dump("a-a17",a17);
+    BananaBar2:Dump("a-a18",a18);
+    BananaBar2:Dump("a-a19",a19);
+end
+
+function BananaBar2:RAID_TARGET_UPDATE()
+end
+
 function BananaBar2:COMBAT_LOG_EVENT_UNFILTERED(event, a1, a2, a3, ...)
     local timestamp,
         eventType,
@@ -1834,6 +1876,8 @@ function BananaBar2:COMBAT_LOG_EVENT_UNFILTERED(event, a1, a2, a3, ...)
         spellSchool = CombatLogGetCurrentEventInfo()
     -- the classic always returns a spell id of zero so we
     -- resolve the spell id using the spell name instead
+
+    --BananaBar2:Print(eventType);
 
     if knownSpellsNameDummyId == nil then
         knownSpellsNameDummyId = {}
@@ -1861,19 +1905,15 @@ function BananaBar2:COMBAT_LOG_EVENT_UNFILTERED(event, a1, a2, a3, ...)
         spellSchool = "<nospellSchool>"
     end
 
-    --BananaBar2:Print(spellName.." "..spellId.." "..sourceName.." "..destName.." "..spellSchool);
 
     local dummySpellId = knownSpellsNameDummyId[spellName]
-
+    
+    
     if dummySpellId then
+        local auratype = auraTypes[dummySpellId];
+
         if eventType == "SPELL_AURA_APPLIED" then
-            BananaBar2:Debug(
-                "KNOWN AURA APPLIED " ..
-                    spellName ..
-                        " on " ..
-                            destName ..
-                                " (" .. destGUID .. ") from " .. sourceName .. " (max " .. dummySpellId .. " seconds)"
-            )
+            BananaBar2:Debug("AURA APPLIED " .. auratype.Name .. " on " .. destName .. " from " .. sourceName .. " Max "..auratype.Duration.." Seconds")
             self.AURAINFO[destGUID] = {
                 StartTime = GetTime(),
                 EndTime = nil,
@@ -1884,27 +1924,14 @@ function BananaBar2:COMBAT_LOG_EVENT_UNFILTERED(event, a1, a2, a3, ...)
                 RealSpellId = nil,
                 FromGUID = sourceGUID,
                 FromName = sourceName,
-                Name = destName .. " (" .. sourceName .. ")"
-            }
+                Name = destName .. " (" .. sourceName .. ")"}
         elseif eventType == "SPELL_AURA_REMOVED" then
-            BananaBar2:Debug(
-                "KNOWN AURA REMOVED " ..
-                    spellName ..
-                        " on " ..
-                            destName ..
-                                " (" .. destGUID .. ") from " .. sourceName .. " (max " .. dummySpellId .. " seconds)"
-            )
+            BananaBar2:Debug("AURA REMOVED " .. spellName .. " on " .. destName .. " from " .. sourceName .. " (max " .. auratype.Duration .. " seconds)" )
             if self.AURAINFO[destGUID] then
                 self.AURAINFO[destGUID].EndTime = GetTime()
             end
         elseif eventType == "SPELL_AURA_REFRESH" then
-            BananaBar2:Debug(
-                "KNOWN AURA REFRESH " ..
-                    spellName ..
-                        " on " ..
-                            destName ..
-                                " (" .. destGUID .. ") from " .. sourceName .. " (max " .. dummySpellId .. " seconds)"
-            )
+            BananaBar2:Debug("AURA REFRESH " .. auratype.Name .. " on " .. destName .. " from " .. sourceName .. " Max ".. auratype.Duration.." Seconds")
             self.AURAINFO[destGUID] = {
                 StartTime = GetTime(),
                 EndTime = nil,
@@ -1929,13 +1956,7 @@ function BananaBar2:COMBAT_LOG_EVENT_UNFILTERED(event, a1, a2, a3, ...)
                 self.AURAINFO[destGUID].BreakTime = GetTime()
             end
         elseif eventType == "SPELL_AURA_BROKEN_SPELL" then
-            BananaBar2:Debug(
-                "KNOWN AURA BROKEN BY SPELL " ..
-                    spellName ..
-                        " on " ..
-                            destName ..
-                                " (" .. destGUID .. ") from " .. sourceName .. " (max " .. dummySpellId .. " seconds)"
-            )
+            BananaBar2:Debug("KNOWN AURA BROKEN BY SPELL " .. spellName .. " on " .. destName .. "  from " .. sourceName .. " (max " .. auratype.Duration .. " seconds)" )
             if self.AURAINFO[destGUID] then
                 self.AURAINFO[destGUID].BreakTime = GetTime()
             end
@@ -1950,13 +1971,7 @@ function BananaBar2:COMBAT_LOG_EVENT_UNFILTERED(event, a1, a2, a3, ...)
             self.AURAINFO[destGUID].BreakerGUID = sourceGUID
             self.AURAINFO[destGUID].BreakReason = (eventType == "SWING_DAMAGE" and "Melee Damage" or spellName)
             local after = math.floor(self.AURAINFO[destGUID].BreakTime - self.AURAINFO[destGUID].StartTime, 1)
-            BananaBar2:Debug(
-                "Broken Aura " ..
-                    destName ..
-                        " from " ..
-                            sourceName ..
-                                " with " .. self.AURAINFO[destGUID].BreakReason .. " after  " .. after .. " seconds"
-            )
+            BananaBar2:Debug("Broken Aura " .. destName .. " from " .. sourceName .. " with " .. self.AURAINFO[destGUID].BreakReason .. " after  " .. after .. " seconds" )
         end
     end
 end
@@ -1966,6 +1981,7 @@ function BananaBar2:BananaSetCursor(texture)
 end
 
 function BananaBar2:PLAYER_REGEN_DISABLED(event)
+    
     self:Debug("Enter Combat")
     self.IGNOREMARKS = {}
     self.IGNOREMOBS = {}
@@ -1977,6 +1993,7 @@ function BananaBar2:PLAYER_REGEN_DISABLED(event)
     end
     self:Debug(self.IGNOREMARKS)
     self:Debug(self.IGNOREMOBS)
+    SecureActionQueue:PLAYER_REGEN_DISABLED();
 end
 
 function BananaBar2:PLAYER_REGEN_ENABLED(event)
@@ -1984,6 +2001,7 @@ function BananaBar2:PLAYER_REGEN_ENABLED(event)
     for i = 1, 40, 1 do
         self.AssistButtons[i]:SetVisible(true)
     end
+    SecureActionQueue:PLAYER_REGEN_ENABLED();
 end
 
 function BananaBar2:OnMouseOverlayUpdate(frame)
@@ -2200,8 +2218,17 @@ function BananaBar2:Get_showraidinfo()
     return self.db.profile.showraidinfo
 end
 
+function BananaBar2:Get_showraidinfoall()
+    return self.db.profile.showraidinfoall
+end
+
 function BananaBar2:Set_showraidinfo(v)
     self.db.profile.showraidinfo = v
+    BananaBar2AssistButton:UpdateAllVisible()
+end
+
+function BananaBar2:Set_showraidinfoall(v)
+    self.db.profile.showraidinfoall = v
     BananaBar2AssistButton:UpdateAllVisible()
 end
 
@@ -2576,7 +2603,7 @@ function BananaBar2:BananaUpdate()
         BananaBar2Button:UpdateAllVisible()
     end
 
-    show = UnitInRaid("player") and self.db.profile.showraidinfo
+    show = (UnitInRaid("player") and self.db.profile.showraidinfo) or self.db.profile.showraidinfoall
 
     if show ~= self.ShowRaidInfo then
         self.ShowRaidInfo = show
@@ -2720,14 +2747,14 @@ function BananaBar2:BananaUpdate()
             self:Print("Autoset symbols fail, cant set symbols")
             return
         end
-        self:Print("Autoset symbols start")
+        self:Debug("Autoset symbols start")
         self:AutoSetSymbols(false)
     end
     local t2 = GetTime()
 end
 
 function BananaBar2:SetSymbolsKeyPressed()
-    self:Print("Autoset symbols...")
+    self:Debug("Autoset symbols...")
     self.SetSymbolsOnNextUpdate = true
 end
 
@@ -2753,10 +2780,10 @@ function BananaBar2:AutoSetSymbols(combatOnly)
 
                         if combatOnly then
                             j = self:Get_buttonorder("symbolordercombat",jj)
-                            self:Print("symbolordercombat "..jj.." -> "..j)
+                            self:Debug("symbolordercombat "..jj.." -> "..j)
                         else
                             j = self:Get_buttonorder("symbolorderhotkey",jj)
-                            self:Print("symbolorderhotkey "..jj.." -> "..j)
+                            self:Debug("symbolorderhotkey "..jj.." -> "..j)
                         end
 
                         
@@ -2765,9 +2792,7 @@ function BananaBar2:AutoSetSymbols(combatOnly)
                             -- skip
                         else
                             if self.TARGETMARKS[j] == nil then
-                                self:Print(
-                                    "Setting Symbol " .. L[("symbolname" .. j)] .. " on " .. info.info_name .." (".. UnitGUID(info.info_unit)..")"
-                                )
+                                self:Print("Setting Symbol " .. L[("symbolname" .. j)] .. " on " .. info.info_name .." (".. UnitGUID(info.info_unit)..")")
                                 BananaBar2:PlaySet()
                                 SetRaidTarget(info.info_unit, j)
                                 self.IGNOREMARKS[j] = 1
@@ -3005,14 +3030,14 @@ end
 
 function BananaBar2:Get_action_part_mouse(action)
     local a = BananaBar2:Get_action(action)
-    self:Print("Set_action_part_mouse "..action.." "..(math.floor(a / 8)+10).." "..a);
+    self:Debug("Set_action_part_mouse "..action.." "..(math.floor(a / 8)+10).." "..a);
     return math.floor(a / 8)+10
 end
 
 function BananaBar2:Set_action_part_mouse(action, v)
     local a = BananaBar2:Get_action(action)
     a = bit.mod(a, 8) + (8 * (v - 10))
-    self:Print("Set_action_part_mouse "..action.." "..v.." "..a);
+    self:Debug("Set_action_part_mouse "..action.." "..v.." "..a);
     BananaBar2:Set_action(action, a)
 end
 
@@ -3203,7 +3228,7 @@ function BananaBar2:MouseOverTargeting()
             end
 
             local realSymbol = self:Get_buttonorder("symbolordermouse",targetingsymbol)
-            self:Print("symbolordermouse "..targetingsymbol.." -> "..realSymbol)
+            self:Debug("symbolordermouse "..targetingsymbol.." -> "..realSymbol)
 
             BananaBar2:PlaySet()
             BananaBar2:Print("Set Symbol " .. L[("symbolname" .. realSymbol)] .. " on " .. UnitName("MOUSEOVER"))
@@ -3328,7 +3353,7 @@ function BananaBar2:InitChatFrame()
             if _G["ChatFrame" .. i].name == "Debug" then
                 self.DebugChatFrame = _G["ChatFrame" .. i]
             end
-            _G["ChatFrame" .. i]:AddMessage("I am chatframe " .. i)
+            --_G["ChatFrame" .. i]:AddMessage("I am chatframe " .. i)
             i = i + 1
         end
         if not self.DebugChatFrame then

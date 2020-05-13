@@ -416,7 +416,7 @@ end
 
 
 function BananaBar2AssistButton:UpdateVisible()
-    if (self.visible and self.Addon:IsActive() and self.Addon.db.profile.showraidinfo and self.Addon.ShowRaidInfo) or self.Addon.layoutmode then
+    if (self.visible and self.Addon:IsActive() and self.Addon.db.profile.showraidinfo and self.Addon.ShowRaidInfo) or self.Addon.layoutmode or self.Addon.db.profile.showraidinfoall then
 		SecureActionQueue:FrameShow(self.frame);
         --self.frame:Show();
     else

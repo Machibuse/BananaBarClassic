@@ -223,8 +223,12 @@ L.showoutofgroup                  = "Show buttons out of group";
 L.showoutofgroupdesc              = "Show buttons when you are not in group";
 
 -- shows or hides the raid info panel (this panel is only shown when you are in a raid
-L.showraidinfo                    = "Show raid info panel";
-L.showraidinfodesc                = "Show raid info panel when in raid, out of raid it is always hidden";
+L.showraidinfo                    = "Show raidinfo panel in raid";
+L.showraidinfodesc                = "Show raidinfo panel when in raid";
+
+L.showraidinfoall                 = "Show raidinfo panel out of raid";
+L.showraidinfoalldesc             = "Show raidinfo panel when out of raid";
+
 
 -- Shows mob name and health bar next to the raid symbol buttons
 L.showextrainfo             		= "Show mob name and health bar";
