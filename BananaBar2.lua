@@ -27,8 +27,8 @@ BINDING_NAME_BANANABAR2_BINDING_KEY = L["binding_key"]
 BINDING_NAME_BANANABAR2_BINDING_SEARCH = L["binding_search"]
 
 BananaBar2.name = L["addonname"]
-BananaBar2.version = "2.0." .. string.sub("$Revision: 107 $", 12, -3)
-BananaBar2.date = string.sub("$Date: 2006-10-13 01:48:21 +0200 (Fr, 13 Okt 2006) $", 8, 17)
+BananaBar2.version = "@project-version@";
+BananaBar2.date = "@project-date-iso@";
 BananaBar2.hasIcon = "Interface\\Addons\\BananaBarClassic\\Images\\BananaBar64"
 BananaBar2.defaultMinimapPosition = 170
 
@@ -2258,7 +2258,7 @@ function BananaBar2:Get_buttonorder(table, index)
         self.db.profile[table][2] = 7
         self.db.profile[table][1] = 8
     end
-
+    self:Debug("get Button Order for ".. table.." Idx "..index.."  = "..self.db.profile[table][index]);
     return self.db.profile[table][index]
 end
 
@@ -2284,31 +2284,8 @@ function BananaBar2:Set_buttonorder(table, index, v)
         end
     end
     local oldValue = self.db.profile[table][index]
-    self.db.profile[table][index] = v
-    self.db.profile[table][oldIndex] = oldValue
-    --BananaBar2Button:UpdateAllExtraInfo(self.db.profile.showextrainfo);
-end
-
-function BananaBar2:Set_buttonorder(table, index, v)
-    if self.db.profile[table] == nil then
-        self.db.profile[table] = {}
-        self.db.profile[table][8] = 1
-        self.db.profile[table][7] = 2
-        self.db.profile[table][6] = 3
-        self.db.profile[table][5] = 4
-        self.db.profile[table][4] = 5
-        self.db.profile[table][3] = 6
-        self.db.profile[table][2] = 7
-        self.db.profile[table][1] = 8
-    end
-
-    local oldIndex = nil
-    for but = 1, 8, 1 do
-        if self.db.profile[table][but] == v then
-            oldIndex = but
-        end
-    end
-    local oldValue = self.db.profile[table][index]
+    BananaBar2:Debug("Swap Button Order for ".. table.." Idx "..oldIndex.."  <-> "..index);
+    BananaBar2:Debug("Swap Button Order for ".. table.." Sym "..self.db.profile[table][oldIndex].."  <-> "..self.db.profile[table][index]);
     self.db.profile[table][index] = v
     self.db.profile[table][oldIndex] = oldValue
     --BananaBar2Button:UpdateAllExtraInfo(self.db.profile.showextrainfo);
@@ -3352,12 +3329,14 @@ function BananaBar2:InitChatFrame()
         while _G["ChatFrame" .. i] do
             if _G["ChatFrame" .. i].name == "Debug" then
                 self.DebugChatFrame = _G["ChatFrame" .. i]
+                self:Debug("Set debug chat frame to '".._G["ChatFrame" .. i].name.."'")
             end
             --_G["ChatFrame" .. i]:AddMessage("I am chatframe " .. i)
             i = i + 1
         end
         if not self.DebugChatFrame then
             self.DebugChatFrame = _G["ChatFrame" .. 1]
+            self:Debug("Set debug chat frame to '".._G["ChatFrame" .. 1].name.."'")
         end
     end
 end
@@ -3366,19 +3345,19 @@ function BananaBar2:Debug(value)
     self:InitChatFrame()
 
     if self:Get_showdebugmessages() then
-        BananaBar2:Print(self.DebugChatFrame, dump(value))
+        BananaBar2:Print(self.DebugChatFrame, "[Dbg] "..dump(value))
     end
 end
 function BananaBar2:Dump(name, value)
     self:InitChatFrame()
     if BananaBar2:Get_showdebugmessages() then
-        BananaBar2:Print(self.DebugChatFrame, name .. ": " .. dump(value))
+        BananaBar2:Print(self.DebugChatFrame, "[Dmp] "..name .. ": " .. dump(value))
     end
 end
 
 function BananaBar2:Dump2(name, value)
     self:InitChatFrame()
-    BananaBar2:Print(self.DebugChatFrame, name .. ": " .. dump(value))
+    BananaBar2:Print(self.DebugChatFrame, "[Dmp] "..name .. ": " .. dump(value))
 end
 
 function dump(o)
